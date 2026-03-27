@@ -8,6 +8,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="now-playing" />
         <Stack.Screen name="album/[id]" />
+        <Stack.Screen name="playlist/[id]" />
       </Stack>
     </GestureHandlerRootView>
   );
