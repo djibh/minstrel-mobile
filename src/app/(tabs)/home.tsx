@@ -76,7 +76,7 @@ export default function HomeScreen() {
             <PlaylistCard
               key={playlist.id}
               playlist={playlist}
-              onPress={() => console.log("open playlist", playlist.id)}
+              onPress={() => vm.openPlaylist(playlist.id)}
             />
           ))}
         </View>

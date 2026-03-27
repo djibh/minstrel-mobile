@@ -77,9 +77,7 @@ export function useLibraryScreen() {
         openArtist: (id: string) => {
             console.log('open artist', id);
         },
-        openPlaylist: (id: string) => {
-            console.log('open playlist', id);
-        },
+        openPlaylist: (id: string) => router.push(`/playlist/${id}`),
         playTrack: (track: any) => {
             const trackQueue = contentTab === 'tracks' ? items : [];
             playbackStore.setQueue(trackQueue as any[]);

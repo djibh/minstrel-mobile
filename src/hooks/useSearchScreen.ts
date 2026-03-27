@@ -83,6 +83,6 @@ export function useSearchScreen() {
         playTrack,
         openAlbum: (id: string) => router.push(`/album/${id}`),
         openArtist: (id: string) => console.log('open artist', id),
-        openPlaylist: (id: string) => console.log('open playlist', id),
+        openPlaylist: (id: string) => router.push(`/playlist/${id}`),
     };
 }

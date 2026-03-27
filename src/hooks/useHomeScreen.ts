@@ -50,6 +50,7 @@ export function useHomeScreen() {
         continueListening,
         openAlbum: (id: string) => router.push(`/album/${id}`),
         openSearch: () => router.push('/(tabs)/search'),
+        openPlaylist: (id: string) => router.push(`/playlist/${id}`),
         resumePlayback: () => {
             if (!playbackStore.currentTrack) return;
             playbackStore.setIsPlaying(true);
