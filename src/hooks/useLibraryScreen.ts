@@ -81,6 +81,8 @@ export function useLibraryScreen() {
             console.log('open playlist', id);
         },
         playTrack: (track: any) => {
+            const trackQueue = contentTab === 'tracks' ? items : [];
+            playbackStore.setQueue(trackQueue as any[]);
             playbackStore.setCurrentTrack(track);
             playbackStore.setIsPlaying(true);
             router.push('/now-playing');
