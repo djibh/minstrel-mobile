@@ -35,7 +35,7 @@ export function ArtistRow({ artist, onPress }: Props) {
             fontSize: 16,
           }}
         >
-          {artist.name.charAt(0).toUpperCase()}
+          {artist.name?.charAt(0).toUpperCase() ?? "?"}
         </Text>
       </View>
 
@@ -48,7 +48,7 @@ export function ArtistRow({ artist, onPress }: Props) {
             fontSize: theme.typography.rowTitle,
           }}
         >
-          {artist.name}
+          {artist.name ?? "Artiste inconnu"}
         </Text>
         <Text
           numberOfLines={1}
@@ -57,7 +57,7 @@ export function ArtistRow({ artist, onPress }: Props) {
             fontSize: theme.typography.caption,
           }}
         >
-          {artist.subtitle}
+          {artist.subtitle ?? ""}
         </Text>
       </View>
     </Pressable>

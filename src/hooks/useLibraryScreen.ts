@@ -1,14 +1,19 @@
 import { libraryApi } from '@/api/libraryApi';
 import { mapAlbumDto } from '@/domain/mappers/album.mapper';
+import { mapArtistDto } from '@/domain/mappers/artist.mapper';
+import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
 import { mapTrackDto } from '@/domain/mappers/track.mapper';
 import { useLibraryStore } from '@/stores/library.store';
 import { usePlaybackStore } from '@/stores/playback.store';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
+type LibraryItem = any;
+
 export function useLibraryScreen() {
     const router = useRouter();
     const playbackStore = usePlaybackStore();
+
     const {
         contentTab,
         sourceFilter,
@@ -18,26 +23,39 @@ export function useLibraryScreen() {
         setSortBy,
     } = useLibraryStore();
 
-    const [items, setItems] = useState<any[]>([]);
+    const [items, setItems] = useState<LibraryItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         async function load() {
             setIsLoading(true);
+            setItems([]);
+
             try {
                 if (contentTab === 'albums') {
                     const result = await libraryApi.getAlbums(sourceFilter, sortBy);
-                    setItems(result.map(mapAlbumDto));
-                } else if (contentTab === 'tracks') {
-                    const result = await libraryApi.getTracks(sourceFilter, sortBy);
-                    setItems(result.map(mapTrackDto));
-                } else if (contentTab === 'artists') {
-                    const result = await libraryApi.getArtists(sourceFilter, sortBy);
-                    setItems(result);
-                } else {
-                    const result = await libraryApi.getPlaylists(sourceFilter, sortBy);
-                    setItems(result);
+                    const mapped = result.map(mapAlbumDto);
+                    setItems(mapped);
+                    return;
                 }
+
+                if (contentTab === 'artists') {
+                    const result = await libraryApi.getArtists(sourceFilter, sortBy);
+                    const mapped = result.map(mapArtistDto);
+                    setItems(mapped);
+                    return;
+                }
+
+                if (contentTab === 'tracks') {
+                    const result = await libraryApi.getTracks(sourceFilter, sortBy);
+                    const mapped = result.map(mapTrackDto);
+                    setItems(mapped);
+                    return;
+                }
+
+                const result = await libraryApi.getPlaylists(sourceFilter, sortBy);
+                const mapped = result.map(mapPlaylistDto);
+                setItems(mapped);
             } finally {
                 setIsLoading(false);
             }
@@ -56,6 +74,12 @@ export function useLibraryScreen() {
         setSourceFilter,
         setSortBy,
         openAlbum: (id: string) => router.push(`/album/${id}`),
+        openArtist: (id: string) => {
+            console.log('open artist', id);
+        },
+        openPlaylist: (id: string) => {
+            console.log('open playlist', id);
+        },
         playTrack: (track: any) => {
             playbackStore.setCurrentTrack(track);
             playbackStore.setIsPlaying(true);

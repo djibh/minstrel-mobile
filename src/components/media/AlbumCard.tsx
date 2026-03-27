@@ -19,15 +19,24 @@ export function AlbumCard({ album, onPress }: Props) {
           marginBottom: theme.spacing.sm,
         }}
       />
+
       <Text
         numberOfLines={1}
-        style={{ color: theme.colors.textPrimary, fontWeight: "600" }}
+        style={{
+          color: theme.colors.textPrimary,
+          fontWeight: "600",
+          fontSize: theme.typography.cardTitle,
+        }}
       >
         {album.title}
       </Text>
+
       <Text
         numberOfLines={1}
-        style={{ color: theme.colors.textSecondary, fontSize: 12 }}
+        style={{
+          color: theme.colors.textSecondary,
+          fontSize: theme.typography.caption,
+        }}
       >
         {album.artistName}
       </Text>
