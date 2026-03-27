@@ -19,7 +19,7 @@ export default function HomeScreen() {
         subtitle="Ta musique, prête à être lancée"
       />
 
-      <SearchInput onPress={vm.openSearch} />
+      <SearchInput onPress={vm.openSearch} editable={false} />
 
       <View style={{ height: theme.spacing.xxl }} />
 
