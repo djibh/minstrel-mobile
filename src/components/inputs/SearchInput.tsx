@@ -1,16 +1,26 @@
 import { theme } from "@/theme";
-import { Search } from "lucide-react-native";
-import { Pressable, Text } from "react-native";
+import { Search, X } from "lucide-react-native";
+import { Pressable, TextInput } from "react-native";
 
 type Props = {
+  value?: string;
+  onChangeText?: (value: string) => void;
   placeholder?: string;
   onPress?: () => void;
+  editable?: boolean;
+  onClear?: () => void;
 };
 
 export function SearchInput({
+  value,
+  onChangeText,
   placeholder = "Rechercher morceaux, artistes, albums...",
   onPress,
+  editable = true,
+  onClear,
 }: Props) {
+  const isInteractivePressOnly = !!onPress && !editable;
+
   return (
     <Pressable
       onPress={onPress}
@@ -27,14 +37,26 @@ export function SearchInput({
       }}
     >
       <Search size={18} color={theme.colors.textMuted} />
-      <Text
+
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={theme.colors.textMuted}
+        editable={!isInteractivePressOnly && editable}
         style={{
-          color: theme.colors.textMuted,
+          flex: 1,
+          color: theme.colors.textPrimary,
           fontSize: theme.typography.body,
+          paddingVertical: 0,
         }}
-      >
-        {placeholder}
-      </Text>
+      />
+
+      {value ? (
+        <Pressable onPress={onClear}>
+          <X size={18} color={theme.colors.textMuted} />
+        </Pressable>
+      ) : null}
     </Pressable>
   );
 }
