@@ -44,6 +44,7 @@ export function SearchInput({
         placeholder={placeholder}
         placeholderTextColor={theme.colors.textMuted}
         editable={!isInteractivePressOnly && editable}
+        pointerEvents={editable ? "auto" : "none"}
         style={{
           flex: 1,
           color: theme.colors.textPrimary,

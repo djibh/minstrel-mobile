@@ -2,6 +2,7 @@ import { libraryApi } from '@/api/libraryApi';
 import { mapAlbumDto } from '@/domain/mappers/album.mapper';
 import { mapTrackDto } from '@/domain/mappers/track.mapper';
 import { usePlaybackStore } from '@/stores/playback.store';
+import { routes } from '@/utils/routes';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -62,14 +63,14 @@ export function useAlbumDetailsScreen() {
         playbackStore.setQueue(tracks);
         playbackStore.setCurrentTrack(tracks[0]);
         playbackStore.setIsPlaying(true);
-        router.push('/now-playing');
+        router.push(routes.nowPlaying())
     };
 
     const playTrack = (track: any) => {
         playbackStore.setQueue(tracks);
         playbackStore.setCurrentTrack(track);
         playbackStore.setIsPlaying(true);
-        router.push('/now-playing');
+        router.push(routes.nowPlaying())
     };
 
     return {

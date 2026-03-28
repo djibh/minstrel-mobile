@@ -2,6 +2,7 @@ import { libraryApi } from '@/api/libraryApi';
 import { mapAlbumDto } from '@/domain/mappers/album.mapper';
 import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
 import { usePlaybackStore } from '@/stores/playback.store';
+import { routes } from '@/utils/routes';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -48,13 +49,13 @@ export function useHomeScreen() {
         recentAlbums,
         playlists,
         continueListening,
-        openAlbum: (id: string) => router.push(`/album/${id}`),
+        openAlbum: (id: string) => router.push(routes.album(id)),
         openSearch: () => router.push('/(tabs)/search'),
-        openPlaylist: (id: string) => router.push(`/playlist/${id}`),
+        openPlaylist: (id: string) => router.push(routes.playlist(id)),
         resumePlayback: () => {
             if (!playbackStore.currentTrack) return;
             playbackStore.setIsPlaying(true);
-            router.push('/now-playing');
+            router.push(routes.nowPlaying());
         },
         goToLibraryAlbums: () => router.push('/(tabs)/library'),
     };

@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 
 import { LibraryItem } from '@/domain/models/library-item.model';
 import { Track } from '@/domain/models/track.model';
+import { routes } from '@/utils/routes';
 
 export function useLibraryScreen() {
     const router = useRouter();
@@ -74,17 +75,17 @@ export function useLibraryScreen() {
         setContentTab,
         setSourceFilter,
         setSortBy,
-        openAlbum: (id: string) => router.push(`/album/${id}`),
+        openAlbum: (id: string) => router.push(routes.album(id)),
         openArtist: (id: string) => {
             console.log('open artist', id);
         },
-        openPlaylist: (id: string) => router.push(`/playlist/${id}`),
+        openPlaylist: (id: string) => router.push(routes.playlist(id)),
         playTrack: (track: Track) => {
             const trackQueue = contentTab === 'tracks' ? items : [];
             playbackStore.setQueue(trackQueue as Track[]);
             playbackStore.setCurrentTrack(track);
             playbackStore.setIsPlaying(true);
-            router.push('/now-playing');
+            router.push(routes.nowPlaying());
         },
     };
 }

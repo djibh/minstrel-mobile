@@ -5,6 +5,7 @@ import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
 import { mapTrackDto } from '@/domain/mappers/track.mapper';
 import { usePlaybackStore } from '@/stores/playback.store';
 import { useSearchStore } from '@/stores/search.store';
+import { routes } from '@/utils/routes';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -70,7 +71,7 @@ export function useSearchScreen() {
         playbackStore.setQueue(results.tracks);
         playbackStore.setCurrentTrack(track);
         playbackStore.setIsPlaying(true);
-        router.push('/now-playing');
+        router.push(routes.nowPlaying());
     };
 
     return {
@@ -81,8 +82,8 @@ export function useSearchScreen() {
         results,
         hasResults,
         playTrack,
-        openAlbum: (id: string) => router.push(`/album/${id}`),
+        openAlbum: (id: string) => router.push(routes.album(id)),
         openArtist: (id: string) => console.log('open artist', id),
-        openPlaylist: (id: string) => router.push(`/playlist/${id}`),
+        openPlaylist: (id: string) => router.push(routes.playlist(id)),
     };
 }
