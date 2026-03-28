@@ -10,6 +10,13 @@ const icons = {
   offline: Download,
 };
 
+const labels = {
+  home: "Accueil",
+  library: "Biblio",
+  search: "Recherche",
+  offline: "Offline",
+};
+
 export function BottomTabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View
@@ -19,24 +26,33 @@ export function BottomTabBar({ state, navigation }: BottomTabBarProps) {
         borderTopColor: theme.colors.border,
         backgroundColor: theme.colors.bgElevated,
         paddingHorizontal: theme.spacing.md,
-        paddingTop: theme.spacing.md,
+        paddingTop: theme.spacing.sm,
         paddingBottom: 20,
       }}
     >
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
         const Icon = icons[route.name as keyof typeof icons];
+        const label = labels[route.name as keyof typeof labels] ?? route.name;
+
+        if (!Icon) return null;
 
         return (
           <Pressable
             key={route.key}
             onPress={() => navigation.navigate(route.name)}
-            style={{ flex: 1, alignItems: "center", gap: 4 }}
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4,
+            }}
           >
             <View
               style={{
-                width: 40,
-                height: 40,
+                minWidth: 52,
+                height: 36,
+                paddingHorizontal: 10,
                 borderRadius: theme.radius.md,
                 alignItems: "center",
                 justifyContent: "center",
@@ -50,15 +66,17 @@ export function BottomTabBar({ state, navigation }: BottomTabBarProps) {
                 color={isFocused ? theme.colors.accent : theme.colors.textMuted}
               />
             </View>
+
             <Text
               style={{
                 color: isFocused
                   ? theme.colors.textPrimary
                   : theme.colors.textMuted,
                 fontSize: 11,
+                fontWeight: isFocused ? "700" : "500",
               }}
             >
-              {route.name}
+              {label}
             </Text>
           </Pressable>
         );
