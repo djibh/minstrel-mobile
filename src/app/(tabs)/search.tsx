@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { SearchInput } from "@/components/inputs/SearchInput";
 import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
@@ -73,7 +74,12 @@ export default function SearchScreen() {
                 ))}
               </View>
             </View>
-          ) : null}
+          ) : (
+            <EmptyState
+              title="Aucun résultat"
+              description="Essaie avec un autre titre, album, artiste ou playlist."
+            />
+          )}
 
           {vm.results.albums.length > 0 ? (
             <View>
@@ -95,7 +101,12 @@ export default function SearchScreen() {
                 ))}
               </View>
             </View>
-          ) : null}
+          ) : (
+            <EmptyState
+              title="Aucun résultat"
+              description="Essaie avec un autre titre, album, artiste ou playlist."
+            />
+          )}
 
           {vm.results.artists.length > 0 ? (
             <View>
@@ -127,7 +138,12 @@ export default function SearchScreen() {
                 ))}
               </View>
             </View>
-          ) : null}
+          ) : (
+            <EmptyState
+              title="Aucun résultat"
+              description="Essaie avec un autre titre, album, artiste ou playlist."
+            />
+          )}
 
           {vm.results.playlists.length > 0 ? (
             <View>
@@ -159,7 +175,12 @@ export default function SearchScreen() {
                 ))}
               </View>
             </View>
-          ) : null}
+          ) : (
+            <EmptyState
+              title="Aucun résultat"
+              description="Essaie avec un autre titre, album, artiste ou playlist."
+            />
+          )}
         </ScrollView>
       )}
     </AppScreen>

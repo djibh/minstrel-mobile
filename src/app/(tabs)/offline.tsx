@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -34,7 +35,14 @@ export default function OfflineScreen() {
 
       <SectionHeader title="Disponibles hors ligne" />
 
-      <OfflineContentList items={vm.offlineItems} />
+      {vm.offlineItems.length > 0 ? (
+        <OfflineContentList items={vm.offlineItems} />
+      ) : (
+        <EmptyState
+          title="Aucun résultat"
+          description="Essaie avec un autre titre, album, artiste ou playlist."
+        />
+      )}
     </AppScreen>
   );
 }

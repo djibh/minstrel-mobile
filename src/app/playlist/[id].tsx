@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { SecondaryButton } from "@/components/buttons/SecondaryButton";
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { TrackRow } from "@/components/media/TrackRow";
@@ -96,14 +97,10 @@ export default function PlaylistDetailsScreen() {
         }}
       >
         {vm.tracks.length === 0 ? (
-          <Text
-            style={{
-              color: theme.colors.textSecondary,
-              paddingVertical: theme.spacing.lg,
-            }}
-          >
-            Aucun morceau disponible pour cette playlist.
-          </Text>
+          <EmptyState
+            title="Aucun résultat"
+            description="Essaie avec un autre titre, album, artiste ou playlist."
+          />
         ) : (
           vm.tracks.map((track, index) => (
             <View key={track.id}>

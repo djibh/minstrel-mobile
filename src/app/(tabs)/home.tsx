@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { SearchInput } from "@/components/inputs/SearchInput";
 import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
@@ -40,9 +41,10 @@ export default function HomeScreen() {
       {vm.isLoading ? (
         <ActivityIndicator color={theme.colors.accent} />
       ) : vm.recentAlbums.length === 0 ? (
-        <Text style={{ color: theme.colors.textSecondary }}>
-          Aucun album disponible.
-        </Text>
+        <EmptyState
+          title="Aucun résultat"
+          description="Essaie avec un autre titre, album, artiste ou playlist."
+        />
       ) : (
         <ScrollView
           horizontal
