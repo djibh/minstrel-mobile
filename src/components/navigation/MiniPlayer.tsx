@@ -3,6 +3,7 @@ import { theme } from "@/theme";
 import { useRouter } from "expo-router";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
+import { AlbumCover } from "../media/AlbumCover";
 
 export function MiniPlayer() {
   const router = useRouter();
@@ -32,14 +33,7 @@ export function MiniPlayer() {
           gap: theme.spacing.md,
         }}
       >
-        <View
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: theme.radius.md,
-            backgroundColor: theme.colors.surfaceAlt,
-          }}
-        />
+        <AlbumCover size="100%" radius={theme.radius.md} />
         <View style={{ flex: 1 }}>
           <Text
             numberOfLines={1}

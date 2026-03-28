@@ -1,6 +1,7 @@
 import { Album } from "@/domain/models/album.model";
 import { theme } from "@/theme";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text } from "react-native";
+import { AlbumCover } from "./AlbumCover";
 
 type Props = {
   album: Album;
@@ -10,15 +11,7 @@ type Props = {
 export function AlbumCard({ album, onPress }: Props) {
   return (
     <Pressable onPress={onPress} style={{ width: "48%" }}>
-      <View
-        style={{
-          width: "100%",
-          aspectRatio: 1,
-          borderRadius: theme.radius.lg,
-          backgroundColor: theme.colors.surfaceAlt,
-          marginBottom: theme.spacing.sm,
-        }}
-      />
+      <AlbumCover size="100%" radius={theme.radius.lg} />
 
       <Text
         numberOfLines={1}
