@@ -7,6 +7,12 @@ import { AlbumCard } from "@/components/media/AlbumCard";
 import { ArtistRow } from "@/components/media/ArtistRow";
 import { PlaylistCard } from "@/components/media/PlaylistCard";
 import { TrackRow } from "@/components/media/TrackRow";
+import { libraryTabs } from "@/constants/libraryTabs";
+import { sourceFilters } from "@/constants/sourceFilters";
+import { Album } from "@/domain/models/album.model";
+import { Artist } from "@/domain/models/artist.model";
+import { Playlist } from "@/domain/models/playlist.model";
+import { Track } from "@/domain/models/track.model";
 import { useLibraryScreen } from "@/hooks/useLibraryScreen";
 import { theme } from "@/theme";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
@@ -24,12 +30,7 @@ export default function LibraryScreen() {
       <View
         style={{ flexDirection: "row", gap: 8, marginBottom: theme.spacing.lg }}
       >
-        {[
-          { label: "all", value: "all" },
-          { label: "local", value: "local" },
-          { label: "pcloud", value: "pcloud" },
-          { label: "downloaded", value: "downloaded" },
-        ].map((item) => (
+        {[...sourceFilters].map((item) => (
           <FilterChip
             key={item.value}
             label={item.label}
@@ -41,12 +42,7 @@ export default function LibraryScreen() {
 
       <SegmentedControl
         value={vm.contentTab}
-        options={[
-          { label: "Albums", value: "albums" },
-          { label: "Artistes", value: "artists" },
-          { label: "Morceaux", value: "tracks" },
-          { label: "Playlists", value: "playlists" },
-        ]}
+        options={[...libraryTabs]}
         onChange={(value) => vm.setContentTab(value as any)}
       />
 
@@ -69,7 +65,10 @@ export default function LibraryScreen() {
             marginBottom: 16,
           }}
           renderItem={({ item }) => (
-            <AlbumCard album={item} onPress={() => vm.openAlbum(item.id)} />
+            <AlbumCard
+              album={item as Album}
+              onPress={() => vm.openAlbum(item.id)}
+            />
           )}
         />
       ) : vm.contentTab === "artists" ? (
@@ -78,7 +77,10 @@ export default function LibraryScreen() {
           key="artists-list"
           contentContainerStyle={{ paddingBottom: 24 }}
           renderItem={({ item }) => (
-            <ArtistRow artist={item} onPress={() => vm.openArtist(item.id)} />
+            <ArtistRow
+              artist={item as Artist}
+              onPress={() => vm.openArtist(item.id)}
+            />
           )}
           ItemSeparatorComponent={() => (
             <View
@@ -96,7 +98,10 @@ export default function LibraryScreen() {
           key="tracks-list"
           contentContainerStyle={{ paddingBottom: 24 }}
           renderItem={({ item }) => (
-            <TrackRow track={item} onPress={() => vm.playTrack(item)} />
+            <TrackRow
+              track={item as Track}
+              onPress={() => vm.playTrack(item as Track)}
+            />
           )}
           ItemSeparatorComponent={() => (
             <View
@@ -115,7 +120,7 @@ export default function LibraryScreen() {
           contentContainerStyle={{ paddingBottom: 24 }}
           renderItem={({ item }) => (
             <PlaylistCard
-              playlist={item}
+              playlist={item as Playlist}
               onPress={() => vm.openPlaylist(item.id)}
             />
           )}
