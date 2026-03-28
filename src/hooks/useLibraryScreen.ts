@@ -8,7 +8,8 @@ import { usePlaybackStore } from '@/stores/playback.store';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-type LibraryItem = any;
+import { LibraryItem } from '@/domain/models/library-item.model';
+import { Track } from '@/domain/models/track.model';
 
 export function useLibraryScreen() {
     const router = useRouter();
@@ -78,9 +79,9 @@ export function useLibraryScreen() {
             console.log('open artist', id);
         },
         openPlaylist: (id: string) => router.push(`/playlist/${id}`),
-        playTrack: (track: any) => {
+        playTrack: (track: Track) => {
             const trackQueue = contentTab === 'tracks' ? items : [];
-            playbackStore.setQueue(trackQueue as any[]);
+            playbackStore.setQueue(trackQueue as Track[]);
             playbackStore.setCurrentTrack(track);
             playbackStore.setIsPlaying(true);
             router.push('/now-playing');
