@@ -7,6 +7,7 @@ import { AlbumCard } from "@/components/media/AlbumCard";
 import { ArtistRow } from "@/components/media/ArtistRow";
 import { PlaylistCard } from "@/components/media/PlaylistCard";
 import { TrackRow } from "@/components/media/TrackRow";
+import { bottomOverlaySpacing } from "@/constants/layout";
 import { libraryTabs } from "@/constants/libraryTabs";
 import { sourceFilters } from "@/constants/sourceFilters";
 import { Album } from "@/domain/models/album.model";
@@ -52,93 +53,95 @@ export default function LibraryScreen() {
         <SortButton label={`Tri : ${vm.sortBy}`} />
       </View>
 
-      {vm.isLoading ? (
-        <ActivityIndicator color={theme.colors.accent} />
-      ) : vm.contentTab === "albums" ? (
-        <FlatList
-          data={vm.items}
-          numColumns={2}
-          key="albums-grid"
-          contentContainerStyle={{ paddingBottom: 24 }}
-          columnWrapperStyle={{
-            justifyContent: "space-between",
-            marginBottom: 16,
-          }}
-          renderItem={({ item }) => (
-            <AlbumCard
-              album={item as Album}
-              onPress={() => vm.openAlbum(item.id)}
-            />
-          )}
-        />
-      ) : vm.contentTab === "artists" ? (
-        <FlatList
-          data={vm.items}
-          key="artists-list"
-          contentContainerStyle={{ paddingBottom: 24 }}
-          renderItem={({ item }) => (
-            <ArtistRow
-              artist={item as Artist}
-              onPress={() => vm.openArtist(item.id)}
-            />
-          )}
-          ItemSeparatorComponent={() => (
-            <View
-              style={{
-                height: 1,
-                backgroundColor: theme.colors.border,
-                opacity: 0.35,
-              }}
-            />
-          )}
-        />
-      ) : vm.contentTab === "tracks" ? (
-        <FlatList
-          data={vm.items}
-          key="tracks-list"
-          contentContainerStyle={{ paddingBottom: 24 }}
-          renderItem={({ item }) => (
-            <TrackRow
-              track={item as Track}
-              onPress={() => vm.playTrack(item as Track)}
-            />
-          )}
-          ItemSeparatorComponent={() => (
-            <View
-              style={{
-                height: 1,
-                backgroundColor: theme.colors.border,
-                opacity: 0.35,
-              }}
-            />
-          )}
-        />
-      ) : vm.contentTab === "playlists" ? (
-        <FlatList
-          data={vm.items}
-          key="playlists-list"
-          contentContainerStyle={{ paddingBottom: 24 }}
-          renderItem={({ item }) => (
-            <PlaylistCard
-              playlist={item as Playlist}
-              onPress={() => vm.openPlaylist(item.id)}
-            />
-          )}
-          ItemSeparatorComponent={() => (
-            <View
-              style={{
-                height: 1,
-                backgroundColor: theme.colors.border,
-                opacity: 0.35,
-              }}
-            />
-          )}
-        />
-      ) : (
-        <Text style={{ color: theme.colors.textSecondary }}>
-          Aucun contenu disponible.
-        </Text>
-      )}
+      <View style={{ flex: 1 }}>
+        {vm.isLoading ? (
+          <ActivityIndicator color={theme.colors.accent} />
+        ) : vm.contentTab === "albums" ? (
+          <FlatList
+            data={vm.items}
+            numColumns={2}
+            key="albums-grid"
+            contentContainerStyle={{ paddingBottom: bottomOverlaySpacing }}
+            columnWrapperStyle={{
+              justifyContent: "space-between",
+              marginBottom: 16,
+            }}
+            renderItem={({ item }) => (
+              <AlbumCard
+                album={item as Album}
+                onPress={() => vm.openAlbum(item.id)}
+              />
+            )}
+          />
+        ) : vm.contentTab === "artists" ? (
+          <FlatList
+            data={vm.items}
+            key="artists-list"
+            contentContainerStyle={{ paddingBottom: bottomOverlaySpacing }}
+            renderItem={({ item }) => (
+              <ArtistRow
+                artist={item as Artist}
+                onPress={() => vm.openArtist(item.id)}
+              />
+            )}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: theme.colors.border,
+                  opacity: 0.35,
+                }}
+              />
+            )}
+          />
+        ) : vm.contentTab === "tracks" ? (
+          <FlatList
+            data={vm.items}
+            key="tracks-list"
+            contentContainerStyle={{ paddingBottom: bottomOverlaySpacing }}
+            renderItem={({ item }) => (
+              <TrackRow
+                track={item as Track}
+                onPress={() => vm.playTrack(item as Track)}
+              />
+            )}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: theme.colors.border,
+                  opacity: 0.35,
+                }}
+              />
+            )}
+          />
+        ) : vm.contentTab === "playlists" ? (
+          <FlatList
+            data={vm.items}
+            key="playlists-list"
+            contentContainerStyle={{ paddingBottom: bottomOverlaySpacing }}
+            renderItem={({ item }) => (
+              <PlaylistCard
+                playlist={item as Playlist}
+                onPress={() => vm.openPlaylist(item.id)}
+              />
+            )}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: theme.colors.border,
+                  opacity: 0.35,
+                }}
+              />
+            )}
+          />
+        ) : (
+          <Text style={{ color: theme.colors.textSecondary }}>
+            Aucun contenu disponible.
+          </Text>
+        )}
+      </View>
     </AppScreen>
   );
 }
