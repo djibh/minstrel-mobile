@@ -10,7 +10,7 @@ import { Pressable, Text, View } from "react-native";
 export function MiniPlayer() {
   const router = useRouter();
   const { currentTrack, isPlaying } = usePlaybackStore();
-  const { togglePlayPause } = usePlaybackActions();
+  const { togglePlayPause, playNext, playPrevious } = usePlaybackActions();
 
   if (!currentTrack) {
     return null;
@@ -56,7 +56,10 @@ export function MiniPlayer() {
         </View>
 
         <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
-          <SkipBack size={18} color={theme.colors.textSecondary} />
+          <Pressable onPress={playPrevious}>
+            <SkipBack size={18} color={theme.colors.textSecondary} />
+          </Pressable>
+
           <Pressable onPress={togglePlayPause}>
             {isPlaying ? (
               <Pause size={20} color={theme.colors.textPrimary} />
@@ -64,7 +67,10 @@ export function MiniPlayer() {
               <Play size={20} color={theme.colors.textPrimary} />
             )}
           </Pressable>
-          <SkipForward size={18} color={theme.colors.textSecondary} />
+
+          <Pressable onPress={playNext}>
+            <SkipForward size={18} color={theme.colors.textSecondary} />
+          </Pressable>
         </View>
       </View>
     </Pressable>

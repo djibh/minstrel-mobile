@@ -9,11 +9,13 @@ export function useNowPlayingScreen() {
         isPlaying,
         progressSeconds,
         durationSeconds,
-        playNext,
-        playPrevious,
     } = usePlaybackStore();
 
-    const { togglePlayPause } = usePlaybackActions();
+    const {
+        togglePlayPause,
+        playNext,
+        playPrevious,
+    } = usePlaybackActions();
 
     const nextTracks = useMemo(() => {
         if (!currentTrack) return [];

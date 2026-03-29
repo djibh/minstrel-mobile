@@ -13,13 +13,9 @@ type PlaybackStore = {
     setIsPlaying: (value: boolean) => void;
     setProgress: (value: number) => void;
     setDuration: (value: number) => void;
-
-    togglePlayPause: () => void;
-    playNext: () => void;
-    playPrevious: () => void;
 };
 
-export const usePlaybackStore = create<PlaybackStore>((set, get) => ({
+export const usePlaybackStore = create<PlaybackStore>((set) => ({
     currentTrack: null,
     queue: [],
     isPlaying: false,
@@ -37,40 +33,4 @@ export const usePlaybackStore = create<PlaybackStore>((set, get) => ({
     setIsPlaying: (isPlaying) => set({ isPlaying }),
     setProgress: (progressSeconds) => set({ progressSeconds }),
     setDuration: (durationSeconds) => set({ durationSeconds }),
-
-    togglePlayPause: () => set({ isPlaying: !get().isPlaying }),
-
-    playNext: () => {
-        const { currentTrack, queue } = get();
-        if (!currentTrack || queue.length === 0) return;
-
-        const currentIndex = queue.findIndex((x) => x.id === currentTrack.id);
-        const nextTrack = queue[currentIndex + 1];
-
-        if (nextTrack) {
-            set({
-                currentTrack: nextTrack,
-                durationSeconds: nextTrack.durationSeconds ?? 0,
-                progressSeconds: 0,
-                isPlaying: true,
-            });
-        }
-    },
-
-    playPrevious: () => {
-        const { currentTrack, queue } = get();
-        if (!currentTrack || queue.length === 0) return;
-
-        const currentIndex = queue.findIndex((x) => x.id === currentTrack.id);
-        const previousTrack = queue[currentIndex - 1];
-
-        if (previousTrack) {
-            set({
-                currentTrack: previousTrack,
-                durationSeconds: previousTrack.durationSeconds ?? 0,
-                progressSeconds: 0,
-                isPlaying: true,
-            });
-        }
-    },
 }));
