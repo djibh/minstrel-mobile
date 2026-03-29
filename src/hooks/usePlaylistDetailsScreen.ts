@@ -5,11 +5,13 @@ import { usePlaybackStore } from '@/stores/playback.store';
 import { routes } from '@/utils/routes';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { usePlaybackActions } from './usePlaybackActions';
 
 export function usePlaylistDetailsScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const playbackStore = usePlaybackStore();
+    const { playTrack: playTrackAction } = usePlaybackActions();
 
     const [playlist, setPlaylist] = useState<any | null>(null);
     const [tracks, setTracks] = useState<any[]>([]);
@@ -59,19 +61,15 @@ export function usePlaylistDetailsScreen() {
         return parts.join(' • ');
     }, [playlist]);
 
-    const playPlaylist = () => {
+    const playPlaylist = async () => {
         if (!tracks.length) return;
 
-        playbackStore.setQueue(tracks);
-        playbackStore.setCurrentTrack(tracks[0]);
-        playbackStore.setIsPlaying(true);
+        await playTrackAction(tracks[0], tracks);
         router.push(routes.nowPlaying());
     };
 
-    const playTrack = (track: any) => {
-        playbackStore.setQueue(tracks);
-        playbackStore.setCurrentTrack(track);
-        playbackStore.setIsPlaying(true);
+    const playTrack = async (track: any) => {
+        await playTrackAction(track, tracks);
         router.push(routes.nowPlaying());
     };
 

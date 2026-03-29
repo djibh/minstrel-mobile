@@ -10,11 +10,13 @@ import { useEffect, useState } from 'react';
 
 import { LibraryItem } from '@/domain/models/library-item.model';
 import { Track } from '@/domain/models/track.model';
+import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { routes } from '@/utils/routes';
 
 export function useLibraryScreen() {
     const router = useRouter();
     const playbackStore = usePlaybackStore();
+    const { playTrack: playTrackAction } = usePlaybackActions();
 
     const {
         contentTab,
@@ -80,12 +82,10 @@ export function useLibraryScreen() {
             console.log('open artist', id);
         },
         openPlaylist: (id: string) => router.push(routes.playlist(id)),
-        playTrack: (track: Track) => {
-            const trackQueue = contentTab === 'tracks' ? items : [];
-            playbackStore.setQueue(trackQueue as Track[]);
-            playbackStore.setCurrentTrack(track);
-            playbackStore.setIsPlaying(true);
+        playTrack: async (track: Track) => {
+            const trackQueue = contentTab === 'tracks' ? (items as Track[]) : [];
+            await playTrackAction(track, trackQueue);
             router.push(routes.nowPlaying());
-        },
+        }
     };
 }
