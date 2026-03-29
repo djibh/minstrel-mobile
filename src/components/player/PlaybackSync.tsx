@@ -7,15 +7,17 @@ export function PlaybackSync() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const progress = minstrelPlayerService.getCurrentTime();
-      const duration = minstrelPlayerService.getDuration();
-      const playing = minstrelPlayerService.isPlaying();
+      const player = minstrelPlayerService.getInstance();
+      if (!player) return;
 
-      playbackStore.setProgress(progress);
+      playbackStore.setProgress(minstrelPlayerService.getCurrentTime());
+
+      const duration = minstrelPlayerService.getDuration();
       if (duration > 0) {
         playbackStore.setDuration(duration);
       }
-      playbackStore.setIsPlaying(playing);
+
+      playbackStore.setIsPlaying(minstrelPlayerService.isPlaying());
     }, 500);
 
     return () => clearInterval(interval);

@@ -1,3 +1,4 @@
+import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { usePlaybackStore } from '@/stores/playback.store';
 import { useMemo } from 'react';
 
@@ -8,10 +9,11 @@ export function useNowPlayingScreen() {
         isPlaying,
         progressSeconds,
         durationSeconds,
-        togglePlayPause,
         playNext,
         playPrevious,
     } = usePlaybackStore();
+
+    const { togglePlayPause } = usePlaybackActions();
 
     const nextTracks = useMemo(() => {
         if (!currentTrack) return [];

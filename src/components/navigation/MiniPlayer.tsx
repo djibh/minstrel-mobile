@@ -1,19 +1,24 @@
+import { AlbumCover } from "@/components/media/AlbumCover";
+import { usePlaybackActions } from "@/hooks/usePlaybackActions";
 import { usePlaybackStore } from "@/stores/playback.store";
 import { theme } from "@/theme";
+import { routes } from "@/utils/routes";
 import { useRouter } from "expo-router";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
-import { AlbumCover } from "../media/AlbumCover";
 
 export function MiniPlayer() {
   const router = useRouter();
-  const { currentTrack, isPlaying, togglePlayPause } = usePlaybackStore();
+  const { currentTrack, isPlaying } = usePlaybackStore();
+  const { togglePlayPause } = usePlaybackActions();
 
-  if (!currentTrack) return null;
+  if (!currentTrack) {
+    return null;
+  }
 
   return (
     <Pressable
-      onPress={() => router.push("/now-playing")}
+      onPress={() => router.push(routes.nowPlaying())}
       style={{
         position: "absolute",
         left: 16,
@@ -33,7 +38,8 @@ export function MiniPlayer() {
           gap: theme.spacing.md,
         }}
       >
-        <AlbumCover size="100%" radius={theme.radius.md} />
+        <AlbumCover size={48} radius={theme.radius.md} />
+
         <View style={{ flex: 1 }}>
           <Text
             numberOfLines={1}
@@ -48,6 +54,7 @@ export function MiniPlayer() {
             {currentTrack.artistName}
           </Text>
         </View>
+
         <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
           <SkipBack size={18} color={theme.colors.textSecondary} />
           <Pressable onPress={togglePlayPause}>
