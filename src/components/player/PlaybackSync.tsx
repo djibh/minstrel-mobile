@@ -7,6 +7,7 @@ export function PlaybackSync() {
   const playbackStore = usePlaybackStore();
   const { playNext } = usePlaybackActions();
   const wasPlayingRef = useRef(false);
+  const advancingRef = useRef(false);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -31,8 +32,13 @@ export function PlaybackSync() {
         duration > 0 &&
         progress >= Math.max(duration - 1, 0);
 
-      if (trackEnded) {
-        await playNext();
+      if (trackEnded && !advancingRef.current) {
+        advancingRef.current = true;
+        try {
+          await playNext();
+        } finally {
+          advancingRef.current = false;
+        }
       }
 
       wasPlayingRef.current = playing;
