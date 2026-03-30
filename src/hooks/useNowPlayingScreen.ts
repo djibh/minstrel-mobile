@@ -15,6 +15,7 @@ export function useNowPlayingScreen() {
         togglePlayPause,
         playNext,
         playPrevious,
+        seekTo,
     } = usePlaybackActions();
 
     const nextTracks = useMemo(() => {
@@ -36,5 +37,6 @@ export function useNowPlayingScreen() {
         togglePlayPause,
         skipNext: playNext,
         skipPrevious: playPrevious,
+        seekTo,
     };
 }

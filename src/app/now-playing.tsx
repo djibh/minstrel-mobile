@@ -71,6 +71,7 @@ export default function NowPlayingScreen() {
       <PlaybackProgress
         progress={vm.progressSeconds}
         duration={vm.durationSeconds}
+        onSeek={vm.seekTo}
       />
 
       <View style={{ height: theme.spacing.xxxl }} />
