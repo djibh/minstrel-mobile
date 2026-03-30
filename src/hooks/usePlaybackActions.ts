@@ -1,11 +1,19 @@
 import { playbackApi } from '@/api/playbackApi';
 import { Track } from '@/domain/models/track.model';
 import { minstrelPlayerService } from '@/services/player/player.service';
-import { usePlaybackStore } from '@/stores/playback.store';
+import { RepeatMode, usePlaybackStore } from '@/stores/playback.store';
 
 function findTrackIndex(queue: Track[], currentTrack: Track | null) {
     if (!currentTrack) return -1;
     return queue.findIndex((x) => x.id === currentTrack.id);
+}
+
+function pickShuffledNext(queue: Track[], currentTrack: Track | null) {
+    const candidates = queue.filter((x) => x.id !== currentTrack?.id);
+    if (candidates.length === 0) return null;
+
+    const index = Math.floor(Math.random() * candidates.length);
+    return candidates[index];
 }
 
 export function usePlaybackActions() {
@@ -19,6 +27,9 @@ export function usePlaybackActions() {
         playbackStore.setProgress(0);
 
         await minstrelPlayerService.load(uri);
+
+        const { repeatMode } = usePlaybackStore.getState();
+        minstrelPlayerService.setLoop(repeatMode === 'one');
 
         minstrelPlayerService.setLockScreenMetadata({
             title: track.title,
@@ -55,18 +66,31 @@ export function usePlaybackActions() {
     };
 
     const playNext = async () => {
-        const { currentTrack, queue } = usePlaybackStore.getState();
+        const { currentTrack, queue, shuffleEnabled, repeatMode } = usePlaybackStore.getState();
         if (!currentTrack || queue.length === 0) return;
 
+        if (shuffleEnabled) {
+            const shuffledNext = pickShuffledNext(queue, currentTrack);
+            if (shuffledNext) {
+                await loadAndPlay(shuffledNext);
+            }
+            return;
+        }
+
         const currentIndex = findTrackIndex(queue, currentTrack);
-        const nextTrack = queue[currentIndex + 1];
+        let nextTrack = queue[currentIndex + 1];
+
+        if (!nextTrack && repeatMode === 'all') {
+            nextTrack = queue[0];
+        }
+
         if (!nextTrack) return;
 
         await loadAndPlay(nextTrack);
     };
 
     const playPrevious = async () => {
-        const { currentTrack, queue, progressSeconds } = usePlaybackStore.getState();
+        const { currentTrack, queue, progressSeconds, repeatMode } = usePlaybackStore.getState();
         if (!currentTrack || queue.length === 0) return;
 
         if (progressSeconds > 3) {
@@ -75,7 +99,11 @@ export function usePlaybackActions() {
         }
 
         const currentIndex = findTrackIndex(queue, currentTrack);
-        const previousTrack = queue[currentIndex - 1];
+        let previousTrack = queue[currentIndex - 1];
+
+        if (!previousTrack && repeatMode === 'all') {
+            previousTrack = queue[queue.length - 1];
+        }
 
         if (!previousTrack) {
             seekTo(0);
@@ -85,11 +113,27 @@ export function usePlaybackActions() {
         await loadAndPlay(previousTrack);
     };
 
+    const cycleRepeatMode = () => {
+        const { repeatMode, setRepeatMode } = usePlaybackStore.getState();
+
+        const nextMode: RepeatMode =
+            repeatMode === 'off' ? 'all' : repeatMode === 'all' ? 'one' : 'off';
+
+        setRepeatMode(nextMode);
+        minstrelPlayerService.setLoop(nextMode === 'one');
+    };
+
+    const toggleShuffle = () => {
+        usePlaybackStore.getState().toggleShuffle();
+    };
+
     return {
         playTrack,
         togglePlayPause,
         seekTo,
         playNext,
         playPrevious,
+        cycleRepeatMode,
+        toggleShuffle,
     };
 }

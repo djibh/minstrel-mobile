@@ -78,9 +78,13 @@ export default function NowPlayingScreen() {
 
       <PlayerControls
         isPlaying={vm.isPlaying}
+        repeatMode={vm.repeatMode}
+        shuffleEnabled={vm.shuffleEnabled}
         onTogglePlayPause={vm.togglePlayPause}
         onNext={vm.skipNext}
         onPrevious={vm.skipPrevious}
+        onToggleShuffle={vm.toggleShuffle}
+        onCycleRepeat={vm.cycleRepeatMode}
       />
 
       <View style={{ height: theme.spacing.xxl }} />

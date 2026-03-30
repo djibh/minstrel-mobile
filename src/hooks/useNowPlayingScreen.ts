@@ -9,6 +9,8 @@ export function useNowPlayingScreen() {
         isPlaying,
         progressSeconds,
         durationSeconds,
+        repeatMode,
+        shuffleEnabled,
     } = usePlaybackStore();
 
     const {
@@ -16,6 +18,8 @@ export function useNowPlayingScreen() {
         playNext,
         playPrevious,
         seekTo,
+        cycleRepeatMode,
+        toggleShuffle,
     } = usePlaybackActions();
 
     const nextTracks = useMemo(() => {
@@ -34,9 +38,13 @@ export function useNowPlayingScreen() {
         isPlaying,
         progressSeconds,
         durationSeconds,
+        repeatMode,
+        shuffleEnabled,
         togglePlayPause,
         skipNext: playNext,
         skipPrevious: playPrevious,
         seekTo,
+        cycleRepeatMode,
+        toggleShuffle,
     };
 }
