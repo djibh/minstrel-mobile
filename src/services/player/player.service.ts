@@ -12,23 +12,6 @@ class MinstrelPlayerService {
         }
     }
 
-    private ensurePlayer(source?: { uri: string }) {
-        this.ensureClient();
-
-        if (!this.player) {
-            if (!source) {
-                throw new Error('Cannot create audio player without a source.');
-            }
-
-            this.player = createAudioPlayer(source);
-            return;
-        }
-
-        if (source) {
-            this.player.replace(source);
-        }
-    }
-
     async configure() {
         this.ensureClient();
 
@@ -46,12 +29,10 @@ class MinstrelPlayerService {
     async load(uri: string) {
         await this.configure();
 
-        const source = { uri };
-
         if (!this.player) {
-            this.ensurePlayer(source);
+            this.player = createAudioPlayer({ uri });
         } else {
-            this.player.replace(source);
+            this.player.replace({ uri });
         }
     }
 
@@ -65,6 +46,25 @@ class MinstrelPlayerService {
 
     seekTo(seconds: number) {
         this.player?.seekTo(seconds);
+    }
+
+    setLoop(value: boolean) {
+        if (this.player) {
+            this.player.loop = value;
+        }
+    }
+
+    setLockScreenMetadata(metadata: {
+        title: string;
+        artist: string;
+        albumTitle?: string;
+        artworkUrl?: string;
+    }) {
+        this.player?.setActiveForLockScreen(true, metadata);
+    }
+
+    clearLockScreenMetadata() {
+        this.player?.setActiveForLockScreen(false);
     }
 
     getCurrentTime() {

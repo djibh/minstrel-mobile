@@ -19,15 +19,21 @@ export function usePlaybackActions() {
         playbackStore.setProgress(0);
 
         await minstrelPlayerService.load(uri);
-        minstrelPlayerService.play();
 
+        minstrelPlayerService.setLockScreenMetadata({
+            title: track.title,
+            artist: track.artistName,
+            albumTitle: track.albumTitle,
+            artworkUrl: track.coverUrl ?? undefined,
+        });
+
+        minstrelPlayerService.play();
         playbackStore.setIsPlaying(true);
     };
 
     const playTrack = async (track: Track, queue: Track[] = []) => {
         const effectiveQueue = queue.length > 0 ? queue : [track];
         playbackStore.setQueue(effectiveQueue);
-
         await loadAndPlay(track);
     };
 
@@ -50,12 +56,10 @@ export function usePlaybackActions() {
 
     const playNext = async () => {
         const { currentTrack, queue } = usePlaybackStore.getState();
-
         if (!currentTrack || queue.length === 0) return;
 
         const currentIndex = findTrackIndex(queue, currentTrack);
         const nextTrack = queue[currentIndex + 1];
-
         if (!nextTrack) return;
 
         await loadAndPlay(nextTrack);
@@ -63,7 +67,6 @@ export function usePlaybackActions() {
 
     const playPrevious = async () => {
         const { currentTrack, queue, progressSeconds } = usePlaybackStore.getState();
-
         if (!currentTrack || queue.length === 0) return;
 
         if (progressSeconds > 3) {
