@@ -1,6 +1,7 @@
-import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import { createAudioPlayer, type AudioStatus, setAudioModeAsync } from 'expo-audio';
 
 type AudioPlayerInstance = ReturnType<typeof createAudioPlayer>;
+type PlaybackStatusListener = (status: AudioStatus) => void;
 type LockScreenMetadata = {
     title: string;
     artist: string;
@@ -53,7 +54,13 @@ class MinstrelPlayerService {
         await this.configure();
 
         if (!this.player) {
-            this.player = createAudioPlayer({ uri });
+            this.player = createAudioPlayer(
+                { uri },
+                {
+                    updateInterval: 250,
+                    keepAudioSessionActive: true,
+                }
+            );
         } else {
             this.player.clearLockScreenControls();
             this.player.replace({ uri });
@@ -117,6 +124,10 @@ class MinstrelPlayerService {
 
     getInstance() {
         return this.player;
+    }
+
+    addPlaybackStatusListener(listener: PlaybackStatusListener) {
+        return this.player?.addListener('playbackStatusUpdate', listener) ?? null;
     }
 
     release() {
