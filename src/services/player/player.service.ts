@@ -1,6 +1,16 @@
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 type AudioPlayerInstance = ReturnType<typeof createAudioPlayer>;
+type LockScreenMetadata = {
+    title: string;
+    artist: string;
+    albumTitle?: string;
+    artworkUrl?: string;
+};
+type LockScreenOptions = {
+    showSeekForward?: boolean;
+    showSeekBackward?: boolean;
+};
 
 function sanitizeTimeValue(value: number | null | undefined) {
     if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
@@ -13,6 +23,11 @@ function sanitizeTimeValue(value: number | null | undefined) {
 class MinstrelPlayerService {
     private player: AudioPlayerInstance | null = null;
     private isConfigured = false;
+    private lockScreenMetadata: LockScreenMetadata | null = null;
+    private readonly lockScreenOptions: LockScreenOptions = {
+        showSeekBackward: true,
+        showSeekForward: true,
+    };
 
     private ensureClient() {
         if (typeof window === 'undefined') {
@@ -40,7 +55,16 @@ class MinstrelPlayerService {
         if (!this.player) {
             this.player = createAudioPlayer({ uri });
         } else {
+            this.player.clearLockScreenControls();
             this.player.replace({ uri });
+        }
+
+        if (this.lockScreenMetadata) {
+            this.player.setActiveForLockScreen(
+                true,
+                this.lockScreenMetadata,
+                this.lockScreenOptions
+            );
         }
     }
 
@@ -52,8 +76,8 @@ class MinstrelPlayerService {
         this.player?.pause();
     }
 
-    seekTo(seconds: number) {
-        this.player?.seekTo(sanitizeTimeValue(seconds));
+    async seekTo(seconds: number) {
+        await this.player?.seekTo(sanitizeTimeValue(seconds));
     }
 
     setLoop(value: boolean) {
@@ -62,16 +86,20 @@ class MinstrelPlayerService {
         }
     }
 
-    setLockScreenMetadata(metadata: {
-        title: string;
-        artist: string;
-        albumTitle?: string;
-        artworkUrl?: string;
-    }) {
-        this.player?.setActiveForLockScreen(true, metadata);
+    setLockScreenMetadata(metadata: LockScreenMetadata) {
+        this.lockScreenMetadata = metadata;
+
+        if (!this.player) {
+            return;
+        }
+
+        this.player.setActiveForLockScreen(true, metadata, this.lockScreenOptions);
+        this.player.updateLockScreenMetadata(metadata);
     }
 
     clearLockScreenMetadata() {
+        this.lockScreenMetadata = null;
+        this.player?.clearLockScreenControls();
         this.player?.setActiveForLockScreen(false);
     }
 
@@ -92,8 +120,10 @@ class MinstrelPlayerService {
     }
 
     release() {
-        this.player?.release();
+        this.clearLockScreenMetadata();
+        this.player?.remove();
         this.player = null;
+        this.isConfigured = false;
     }
 }
 
