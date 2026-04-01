@@ -56,7 +56,7 @@ export function MiniPlayer() {
         </View>
 
         <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
-          <Pressable onPress={playPrevious}>
+          <Pressable onPress={() => void playPrevious()}>
             <SkipBack size={18} color={theme.colors.textSecondary} />
           </Pressable>
 
@@ -68,7 +68,7 @@ export function MiniPlayer() {
             )}
           </Pressable>
 
-          <Pressable onPress={playNext}>
+          <Pressable onPress={() => void playNext()}>
             <SkipForward size={18} color={theme.colors.textSecondary} />
           </Pressable>
         </View>
