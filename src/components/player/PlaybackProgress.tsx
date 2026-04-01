@@ -1,6 +1,6 @@
 import { theme } from "@/theme";
 import { formatDuration } from "@/utils/formatDuration";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 type Props = {
@@ -10,9 +10,12 @@ type Props = {
 };
 
 export function PlaybackProgress({ progress, duration, onSeek }: Props) {
+  const safeProgress = Number.isFinite(progress) && progress >= 0 ? progress : 0;
+  const safeDuration = Number.isFinite(duration) && duration >= 0 ? duration : 0;
+
   return (
     <View>
-      <SeekBar progress={progress} duration={duration} onSeek={onSeek} />
+      <SeekBar progress={safeProgress} duration={safeDuration} onSeek={onSeek} />
 
       <View
         style={{
@@ -27,7 +30,7 @@ export function PlaybackProgress({ progress, duration, onSeek }: Props) {
             fontSize: theme.typography.caption,
           }}
         >
-          {formatDuration(progress)}
+          {formatDuration(safeProgress)}
         </Text>
         <Text
           style={{
@@ -35,7 +38,7 @@ export function PlaybackProgress({ progress, duration, onSeek }: Props) {
             fontSize: theme.typography.caption,
           }}
         >
-          {formatDuration(duration)}
+          {formatDuration(safeDuration)}
         </Text>
       </View>
     </View>
@@ -52,17 +55,28 @@ function SeekBar({
   onSeek?: (seconds: number) => void;
 }) {
   const [width, setWidth] = useState(0);
-  const ratio = duration > 0 ? Math.min(progress / duration, 1) : 0;
+  const pressableRef = useRef<View>(null);
+  const ratio =
+    duration > 0 && Number.isFinite(progress / duration)
+      ? Math.min(progress / duration, 1)
+      : 0;
 
   return (
     <Pressable
+      ref={pressableRef}
       onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       onPress={(e) => {
         if (!onSeek || duration <= 0 || width <= 0) return;
 
-        const x = e.nativeEvent.locationX;
-        const nextRatio = Math.max(0, Math.min(1, x / width));
-        onSeek(duration * nextRatio);
+        pressableRef.current?.measure((_, __, measuredWidth, ___, pageX) => {
+          const effectiveWidth = measuredWidth > 0 ? measuredWidth : width;
+          if (effectiveWidth <= 0) return;
+
+          const relativeX = e.nativeEvent.pageX - pageX;
+          const nextRatio = Math.max(0, Math.min(1, relativeX / effectiveWidth));
+          const nextTime = duration * nextRatio;
+          onSeek(Number.isFinite(nextTime) ? nextTime : 0);
+        });
       }}
       style={{
         height: 24,
@@ -70,6 +84,7 @@ function SeekBar({
       }}
     >
       <View
+        pointerEvents="none"
         style={{
           height: 6,
           borderRadius: theme.radius.pill,
@@ -78,6 +93,7 @@ function SeekBar({
         }}
       >
         <View
+          pointerEvents="none"
           style={{
             width: `${ratio * 100}%`,
             height: "100%",

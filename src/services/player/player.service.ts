@@ -2,6 +2,14 @@ import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 type AudioPlayerInstance = ReturnType<typeof createAudioPlayer>;
 
+function sanitizeTimeValue(value: number | null | undefined) {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+        return 0;
+    }
+
+    return value;
+}
+
 class MinstrelPlayerService {
     private player: AudioPlayerInstance | null = null;
     private isConfigured = false;
@@ -45,7 +53,7 @@ class MinstrelPlayerService {
     }
 
     seekTo(seconds: number) {
-        this.player?.seekTo(seconds);
+        this.player?.seekTo(sanitizeTimeValue(seconds));
     }
 
     setLoop(value: boolean) {
@@ -68,11 +76,11 @@ class MinstrelPlayerService {
     }
 
     getCurrentTime() {
-        return this.player?.currentTime ?? 0;
+        return sanitizeTimeValue(this.player?.currentTime);
     }
 
     getDuration() {
-        return this.player?.duration ?? 0;
+        return sanitizeTimeValue(this.player?.duration);
     }
 
     isPlaying() {
