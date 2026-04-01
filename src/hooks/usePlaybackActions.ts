@@ -3,6 +3,14 @@ import { Track } from '@/domain/models/track.model';
 import { minstrelPlayerService } from '@/services/player/player.service';
 import { RepeatMode, usePlaybackStore } from '@/stores/playback.store';
 
+function sanitizeTimeValue(value: number) {
+    if (!Number.isFinite(value) || value < 0) {
+        return 0;
+    }
+
+    return value;
+}
+
 function findTrackIndex(queue: Track[], currentTrack: Track | null) {
     if (!currentTrack) return -1;
     return queue.findIndex((x) => x.id === currentTrack.id);
@@ -61,8 +69,9 @@ export function usePlaybackActions() {
     };
 
     const seekTo = (seconds: number) => {
-        minstrelPlayerService.seekTo(seconds);
-        playbackStore.setProgress(seconds);
+        const safeSeconds = sanitizeTimeValue(seconds);
+        minstrelPlayerService.seekTo(safeSeconds);
+        playbackStore.setProgress(safeSeconds);
     };
 
     const playNext = async () => {
