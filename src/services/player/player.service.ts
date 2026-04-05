@@ -1,4 +1,5 @@
 import { createAudioPlayer, type AudioStatus, setAudioModeAsync } from 'expo-audio';
+import { logPlayerDebug } from '@/utils/playerDebug';
 
 type AudioPlayerInstance = ReturnType<typeof createAudioPlayer>;
 type PlaybackStatusListener = (status: AudioStatus) => void;
@@ -48,6 +49,7 @@ class MinstrelPlayerService {
         });
 
         this.isConfigured = true;
+        logPlayerDebug('service:configured');
     }
 
     async load(uri: string) {
@@ -61,9 +63,11 @@ class MinstrelPlayerService {
                     keepAudioSessionActive: true,
                 }
             );
+            logPlayerDebug('service:playerCreated', { uri });
         } else {
             this.player.clearLockScreenControls();
             this.player.replace({ uri });
+            logPlayerDebug('service:sourceReplaced', { uri });
         }
 
         if (this.lockScreenMetadata) {
@@ -77,19 +81,23 @@ class MinstrelPlayerService {
 
     play() {
         this.player?.play();
+        logPlayerDebug('service:play');
     }
 
     pause() {
         this.player?.pause();
+        logPlayerDebug('service:pause');
     }
 
     async seekTo(seconds: number) {
         await this.player?.seekTo(sanitizeTimeValue(seconds));
+        logPlayerDebug('service:seekTo', { seconds: sanitizeTimeValue(seconds) });
     }
 
     setLoop(value: boolean) {
         if (this.player) {
             this.player.loop = value;
+            logPlayerDebug('service:setLoop', { enabled: value });
         }
     }
 
@@ -102,12 +110,17 @@ class MinstrelPlayerService {
 
         this.player.setActiveForLockScreen(true, metadata, this.lockScreenOptions);
         this.player.updateLockScreenMetadata(metadata);
+        logPlayerDebug('service:setLockScreenMetadata', {
+            title: metadata.title,
+            artist: metadata.artist,
+        });
     }
 
     clearLockScreenMetadata() {
         this.lockScreenMetadata = null;
         this.player?.clearLockScreenControls();
         this.player?.setActiveForLockScreen(false);
+        logPlayerDebug('service:clearLockScreenMetadata');
     }
 
     getCurrentTime() {
@@ -135,6 +148,7 @@ class MinstrelPlayerService {
         this.player?.remove();
         this.player = null;
         this.isConfigured = false;
+        logPlayerDebug('service:release');
     }
 }
 

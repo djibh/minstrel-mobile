@@ -2,6 +2,7 @@ import { playbackApi } from '@/api/playbackApi';
 import { Track } from '@/domain/models/track.model';
 import { minstrelPlayerService } from '@/services/player/player.service';
 import { RepeatMode, usePlaybackStore } from '@/stores/playback.store';
+import { logPlayerDebug } from '@/utils/playerDebug';
 
 function sanitizeTimeValue(value: number) {
     if (!Number.isFinite(value) || value < 0) {
@@ -70,6 +71,14 @@ export function usePlaybackActions() {
     const loadAndPlay = async (track: Track) => {
         const uri = playbackApi.getStreamUrl(track.id);
         const playbackStore = usePlaybackStore.getState();
+        const queueSize = playbackStore.queue.length;
+
+        logPlayerDebug('loadAndPlay:start', {
+            trackId: track.id,
+            title: track.title,
+            queueSize,
+            uri,
+        });
 
         playbackStore.setIsTransitioning(true);
         playbackStore.setCurrentTrack(track);
@@ -91,14 +100,25 @@ export function usePlaybackActions() {
 
             minstrelPlayerService.play();
             playbackStore.setIsPlaying(true);
+            logPlayerDebug('loadAndPlay:ready', {
+                trackId: track.id,
+                repeatMode,
+            });
         } finally {
             playbackStore.setIsTransitioning(false);
+            logPlayerDebug('loadAndPlay:end', {
+                trackId: track.id,
+            });
         }
     };
 
     const playTrack = async (track: Track, queue: Track[] = []) => {
         const effectiveQueue = queue.length > 0 ? queue : [track];
         usePlaybackStore.getState().setQueue(effectiveQueue);
+        logPlayerDebug('playTrack', {
+            trackId: track.id,
+            queueSize: effectiveQueue.length,
+        });
         await loadAndPlay(track);
     };
 
@@ -108,9 +128,11 @@ export function usePlaybackActions() {
         if (isPlaying) {
             minstrelPlayerService.pause();
             setIsPlaying(false);
+            logPlayerDebug('pause');
         } else {
             minstrelPlayerService.play();
             setIsPlaying(true);
+            logPlayerDebug('play');
         }
     };
 
@@ -120,8 +142,11 @@ export function usePlaybackActions() {
 
         setIsSeeking(true);
         markSeekedAt(Date.now());
-        minstrelPlayerService.seekTo(safeSeconds);
+        void minstrelPlayerService.seekTo(safeSeconds);
         setProgress(safeSeconds);
+        logPlayerDebug('seekTo', {
+            seconds: safeSeconds,
+        });
         setTimeout(() => {
             usePlaybackStore.getState().setIsSeeking(false);
         }, 300);
@@ -137,9 +162,21 @@ export function usePlaybackActions() {
             reason,
         });
 
+        logPlayerDebug('playNext:resolved', {
+            reason,
+            currentTrackId: currentTrack?.id,
+            nextTrackId: nextTrack?.id,
+            shuffleEnabled,
+            repeatMode,
+            queueSize: queue.length,
+        });
+
         if (!nextTrack) {
             if (reason === 'auto') {
                 usePlaybackStore.getState().setIsPlaying(false);
+                logPlayerDebug('playNext:stoppedAtQueueEnd', {
+                    currentTrackId: currentTrack?.id,
+                });
             }
             return;
         }
@@ -152,6 +189,10 @@ export function usePlaybackActions() {
         if (!currentTrack || queue.length === 0) return;
 
         if (progressSeconds > 3) {
+            logPlayerDebug('playPrevious:restartCurrent', {
+                currentTrackId: currentTrack.id,
+                progressSeconds,
+            });
             seekTo(0);
             return;
         }
@@ -164,9 +205,19 @@ export function usePlaybackActions() {
         }
 
         if (!previousTrack) {
+            logPlayerDebug('playPrevious:noPreviousTrack', {
+                currentTrackId: currentTrack.id,
+                repeatMode,
+            });
             seekTo(0);
             return;
         }
+
+        logPlayerDebug('playPrevious:resolved', {
+            currentTrackId: currentTrack.id,
+            previousTrackId: previousTrack.id,
+            repeatMode,
+        });
 
         await loadAndPlay(previousTrack);
     };
@@ -179,10 +230,19 @@ export function usePlaybackActions() {
 
         setRepeatMode(nextMode);
         minstrelPlayerService.setLoop(nextMode === 'one');
+        logPlayerDebug('repeatMode', {
+            previousMode: repeatMode,
+            nextMode,
+        });
     };
 
     const toggleShuffle = () => {
-        usePlaybackStore.getState().toggleShuffle();
+        const store = usePlaybackStore.getState();
+        const nextValue = !store.shuffleEnabled;
+        store.toggleShuffle();
+        logPlayerDebug('shuffle', {
+            enabled: nextValue,
+        });
     };
 
     return {

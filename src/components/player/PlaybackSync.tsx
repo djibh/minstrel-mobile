@@ -1,6 +1,7 @@
 import { usePlaybackActions } from "@/hooks/usePlaybackActions";
 import { minstrelPlayerService } from "@/services/player/player.service";
 import { usePlaybackStore } from "@/stores/playback.store";
+import { logPlayerDebug } from "@/utils/playerDebug";
 import { useEffect, useRef } from "react";
 import type { AudioStatus } from "expo-audio";
 import type { EventSubscription } from "expo-modules-core";
@@ -61,7 +62,18 @@ export function PlaybackSync() {
       !!currentTrack;
 
     if (trackEnded && !advancingRef.current) {
+      logPlayerDebug("trackEnded:detected", {
+        trackId: currentTrack?.id,
+        didJustFinish,
+        currentTime,
+        duration,
+        repeatMode,
+      });
+
       if (lastHandledTrackEndRef.current === currentTrack?.id) {
+        logPlayerDebug("trackEnded:ignoredDuplicate", {
+          trackId: currentTrack?.id,
+        });
         wasPlayingRef.current = playing;
         return;
       }
@@ -70,6 +82,9 @@ export function PlaybackSync() {
       lastHandledTrackEndRef.current = currentTrack?.id ?? null;
       try {
         await playNext("auto");
+        logPlayerDebug("trackEnded:advanced", {
+          trackId: currentTrack?.id,
+        });
 
         const nextState = usePlaybackStore.getState();
         if (
@@ -77,6 +92,9 @@ export function PlaybackSync() {
           repeatMode === "one"
         ) {
           nextState.setIsPlaying(true);
+          logPlayerDebug("trackEnded:repeatOneRestart", {
+            trackId: currentTrack?.id,
+          });
         }
       } finally {
         advancingRef.current = false;
@@ -100,8 +118,9 @@ export function PlaybackSync() {
         subscribedPlayerRef.current = player;
         statusSubscriptionRef.current =
           minstrelPlayerService.addPlaybackStatusListener((status) => {
-          void syncPlaybackState(status);
+            void syncPlaybackState(status);
           });
+        logPlayerDebug("playbackStatus:subscribed");
       }
 
       await syncPlaybackState({
