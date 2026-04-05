@@ -4,6 +4,9 @@ export function useOfflineScreen() {
     const {
         cacheUsedBytes,
         cacheMaxBytes,
+        localLibrarySummary,
+        pcloudConnection,
+        importSources,
         downloads,
         offlineItems,
     } = useOfflineStore();
@@ -11,6 +14,9 @@ export function useOfflineScreen() {
     return {
         cacheUsedBytes,
         cacheMaxBytes,
+        localLibrarySummary,
+        pcloudConnection,
+        importSources,
         downloads,
         offlineItems,
     };

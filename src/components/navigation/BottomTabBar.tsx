@@ -14,7 +14,7 @@ const labels = {
   home: "Accueil",
   library: "Biblio",
   search: "Recherche",
-  offline: "Offline",
+  offline: "Sources",
 };
 
 export function BottomTabBar({ state, navigation }: BottomTabBarProps) {

@@ -5,9 +5,16 @@ import { Text, View } from "react-native";
 type Props = {
   usedBytes: number;
   maxBytes: number;
+  title?: string;
+  subtitle?: string;
 };
 
-export function StorageStatusCard({ usedBytes, maxBytes }: Props) {
+export function StorageStatusCard({
+  usedBytes,
+  maxBytes,
+  title = "Stockage local",
+  subtitle = "Cache audio et contenus importés",
+}: Props) {
   const ratio = maxBytes > 0 ? Math.min(usedBytes / maxBytes, 1) : 0;
 
   return (
@@ -25,10 +32,20 @@ export function StorageStatusCard({ usedBytes, maxBytes }: Props) {
           color: theme.colors.textPrimary,
           fontSize: theme.typography.cardTitle,
           fontWeight: "700",
+        }}
+      >
+        {title}
+      </Text>
+
+      <Text
+        style={{
+          color: theme.colors.textSecondary,
+          fontSize: theme.typography.body,
+          marginTop: theme.spacing.xs,
           marginBottom: theme.spacing.sm,
         }}
       >
-        Cache
+        {subtitle}
       </Text>
 
       <Text

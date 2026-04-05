@@ -7,6 +7,17 @@ type Props = {
 };
 
 export function DownloadProgressCard({ item }: Props) {
+  const stateLabel =
+    item.state === "running"
+      ? "En cours"
+      : item.state === "paused"
+        ? "Pause"
+        : item.state === "completed"
+          ? "Terminé"
+          : item.state === "failed"
+            ? "Erreur"
+            : "En file";
+
   return (
     <View
       style={{
@@ -44,7 +55,7 @@ export function DownloadProgressCard({ item }: Props) {
             marginLeft: theme.spacing.md,
           }}
         >
-          {item.progress}%
+          {stateLabel} · {item.progress}%
         </Text>
       </View>
 
