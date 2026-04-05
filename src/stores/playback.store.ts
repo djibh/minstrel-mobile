@@ -11,6 +11,10 @@ type PlaybackStore = {
     durationSeconds: number;
     repeatMode: RepeatMode;
     shuffleEnabled: boolean;
+    isSeeking: boolean;
+    lastSeekAt: number | null;
+    isTransitioning: boolean;
+    lastTrackChangeAt: number | null;
 
     setCurrentTrack: (track: Track | null) => void;
     setQueue: (tracks: Track[]) => void;
@@ -18,6 +22,9 @@ type PlaybackStore = {
     setProgress: (value: number) => void;
     setDuration: (value: number) => void;
     setRepeatMode: (value: RepeatMode) => void;
+    setIsSeeking: (value: boolean) => void;
+    markSeekedAt: (value: number) => void;
+    setIsTransitioning: (value: boolean) => void;
     toggleShuffle: () => void;
 };
 
@@ -29,12 +36,17 @@ export const usePlaybackStore = create<PlaybackStore>((set) => ({
     durationSeconds: 0,
     repeatMode: 'off',
     shuffleEnabled: false,
+    isSeeking: false,
+    lastSeekAt: null,
+    isTransitioning: false,
+    lastTrackChangeAt: null,
 
     setCurrentTrack: (currentTrack) =>
         set({
             currentTrack,
             durationSeconds: currentTrack?.durationSeconds ?? 0,
             progressSeconds: 0,
+            lastTrackChangeAt: Date.now(),
         }),
 
     setQueue: (queue) => set({ queue }),
@@ -42,5 +54,8 @@ export const usePlaybackStore = create<PlaybackStore>((set) => ({
     setProgress: (progressSeconds) => set({ progressSeconds }),
     setDuration: (durationSeconds) => set({ durationSeconds }),
     setRepeatMode: (repeatMode) => set({ repeatMode }),
+    setIsSeeking: (isSeeking) => set({ isSeeking }),
+    markSeekedAt: (lastSeekAt) => set({ lastSeekAt }),
+    setIsTransitioning: (isTransitioning) => set({ isTransitioning }),
     toggleShuffle: () => set((state) => ({ shuffleEnabled: !state.shuffleEnabled })),
 }));

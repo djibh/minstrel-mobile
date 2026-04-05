@@ -156,6 +156,14 @@ Remplacer l’IP par celle de la machine qui exécute le backend Minstrel.
 npx expo start
 ```
 
+Important: les commandes doivent etre lancees depuis [`src/`](/Users/djibh/Documents/Workspace/minstrel-mobile/minstrel-mobile/src), qui contient le `package.json`.
+
+## Validation Player
+
+Une checklist de test sur appareil natif est disponible ici:
+
+- [`docs/player-device-test-checklist.md`](/Users/djibh/Documents/Workspace/minstrel-mobile/minstrel-mobile/docs/player-device-test-checklist.md)
+
 ## État actuel
 
 À ce stade, le projet permet déjà :
