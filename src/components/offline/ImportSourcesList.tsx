@@ -1,10 +1,11 @@
 import { ImportSourceItem } from "@/stores/offline.store";
 import { theme } from "@/theme";
 import { Cloud, FolderInput, Smartphone } from "lucide-react-native";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 type Props = {
   items: ImportSourceItem[];
+  onPressItem?: (item: ImportSourceItem) => void;
 };
 
 const icons = {
@@ -13,7 +14,7 @@ const icons = {
   pcloud: Cloud,
 };
 
-export function ImportSourcesList({ items }: Props) {
+export function ImportSourcesList({ items, onPressItem }: Props) {
   return (
     <View
       style={{
@@ -36,12 +37,14 @@ export function ImportSourcesList({ items }: Props) {
 
         return (
           <View key={item.id}>
-            <View
+            <Pressable
+              onPress={onPressItem ? () => onPressItem(item) : undefined}
               style={{
                 flexDirection: "row",
                 gap: theme.spacing.md,
                 alignItems: "center",
                 paddingVertical: theme.spacing.md,
+                opacity: onPressItem ? 1 : 0.9,
               }}
             >
               <View
@@ -109,7 +112,7 @@ export function ImportSourcesList({ items }: Props) {
                       : "Prêt"}
                 </Text>
               </View>
-            </View>
+            </Pressable>
 
             {index < items.length - 1 ? (
               <View

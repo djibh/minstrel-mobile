@@ -1,12 +1,14 @@
 import { OfflineMediaItem } from "@/stores/offline.store";
 import { theme } from "@/theme";
-import { Text, View } from "react-native";
+import { Play } from "lucide-react-native";
+import { Pressable, Text, View } from "react-native";
 
 type Props = {
   items: OfflineMediaItem[];
+  onPressItem?: (itemId: string) => void;
 };
 
-export function OfflineContentList({ items }: Props) {
+export function OfflineContentList({ items, onPressItem }: Props) {
   return (
     <View
       style={{
@@ -28,7 +30,8 @@ export function OfflineContentList({ items }: Props) {
       ) : (
         items.map((item, index) => (
           <View key={item.id}>
-            <View
+            <Pressable
+              onPress={onPressItem ? () => onPressItem(item.id) : undefined}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -66,27 +69,53 @@ export function OfflineContentList({ items }: Props) {
                 >
                   {item.subtitle}
                 </Text>
+                {item.sourceLabel ? (
+                  <Text
+                    style={{
+                      color: theme.colors.textMuted,
+                      fontSize: 11,
+                      marginTop: 4,
+                    }}
+                  >
+                    {item.sourceLabel}
+                  </Text>
+                ) : null}
               </View>
 
-              <View
-                style={{
-                  paddingHorizontal: 10,
-                  paddingVertical: 6,
-                  borderRadius: theme.radius.pill,
-                  backgroundColor: theme.colors.accentSoft,
-                }}
-              >
-                <Text
+              {item.track && onPressItem ? (
+                <View
                   style={{
-                    color: theme.colors.accent,
-                    fontSize: 11,
-                    fontWeight: "700",
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: theme.colors.accentSoft,
                   }}
                 >
-                  Offline
-                </Text>
-              </View>
-            </View>
+                  <Play size={16} color={theme.colors.accent} />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: theme.radius.pill,
+                    backgroundColor: theme.colors.accentSoft,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: theme.colors.accent,
+                      fontSize: 11,
+                      fontWeight: "700",
+                    }}
+                  >
+                    Offline
+                  </Text>
+                </View>
+              )}
+            </Pressable>
 
             {index < items.length - 1 ? (
               <View

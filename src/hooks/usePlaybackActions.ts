@@ -73,7 +73,7 @@ function resolveNextTrack({
 
 export function usePlaybackActions() {
     const loadAndPlay = async (track: Track) => {
-        const uri = playbackApi.getStreamUrl(track.id);
+        const uri = track.streamUri ?? playbackApi.getStreamUrl(track.id);
         const playbackStore = usePlaybackStore.getState();
         const queueSize = playbackStore.queue.length;
 

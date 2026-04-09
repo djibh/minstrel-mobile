@@ -22,7 +22,10 @@ export default function OfflineScreen() {
         subtitle="Local, imports, pCloud et contenus téléchargés"
       />
 
-      <LocalLibraryCard summary={vm.localLibrarySummary} />
+      <LocalLibraryCard
+        summary={vm.localLibrarySummary}
+        onImportFiles={() => void vm.importLocalAudio()}
+      />
 
       <View style={{ height: theme.spacing.xxxl }} />
 
@@ -34,7 +37,14 @@ export default function OfflineScreen() {
 
       <SectionHeader title="Points d’import" actionLabel="Voir tout" />
 
-      <ImportSourcesList items={vm.importSources} />
+      <ImportSourcesList
+        items={vm.importSources}
+        onPressItem={(item) => {
+          if (item.kind === "device" || item.kind === "folder") {
+            void vm.importLocalAudio();
+          }
+        }}
+      />
 
       <View style={{ height: theme.spacing.xxxl }} />
 
@@ -58,7 +68,10 @@ export default function OfflineScreen() {
       <SectionHeader title="Déjà disponibles sur l’appareil" />
 
       {vm.offlineItems.length > 0 ? (
-        <OfflineContentList items={vm.offlineItems} />
+        <OfflineContentList
+          items={vm.offlineItems}
+          onPressItem={(itemId) => void vm.playOfflineItem(itemId)}
+        />
       ) : (
         <EmptyState
           title="Aucun contenu local"

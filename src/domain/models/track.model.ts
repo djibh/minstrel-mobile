@@ -8,6 +8,7 @@ export type Track = {
     subtitle: string;
     durationSeconds?: number;
     durationLabel: string;
+    streamUri?: string | null;
     coverUrl?: string | null;
     isOfflineAvailable: boolean;
 };

@@ -1,3 +1,4 @@
+import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { LocalLibrarySummary } from "@/stores/offline.store";
 import { theme } from "@/theme";
 import { Disc3, Music2, UserRound } from "lucide-react-native";
@@ -5,6 +6,7 @@ import { Text, View } from "react-native";
 
 type Props = {
   summary: LocalLibrarySummary;
+  onImportFiles?: () => void;
 };
 
 const stats = [
@@ -13,7 +15,7 @@ const stats = [
   { key: "artistCount", label: "Artistes", icon: UserRound },
 ] as const;
 
-export function LocalLibraryCard({ summary }: Props) {
+export function LocalLibraryCard({ summary, onImportFiles }: Props) {
   const scanLabel =
     summary.scanState === "scanning" ? "Scan en cours" : summary.lastScanLabel;
 
@@ -91,6 +93,17 @@ export function LocalLibraryCard({ summary }: Props) {
             </View>
           );
         })}
+      </View>
+
+      <View style={{ flexDirection: "row" }}>
+        <PrimaryButton
+          label={
+            summary.scanState === "scanning"
+              ? "Import en cours..."
+              : "Ajouter des fichiers audio"
+          }
+          onPress={onImportFiles}
+        />
       </View>
     </View>
   );

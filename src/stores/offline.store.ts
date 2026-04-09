@@ -1,3 +1,4 @@
+import { Track } from '@/domain/models/track.model';
 import { create } from 'zustand';
 
 export type DownloadItem = {
@@ -12,6 +13,8 @@ export type OfflineMediaItem = {
     type: 'album' | 'playlist' | 'track';
     title: string;
     subtitle: string;
+    sourceLabel?: string;
+    track?: Track;
 };
 
 export type LocalLibrarySummary = {
@@ -60,11 +63,11 @@ export const useOfflineStore = create<OfflineStore>((set) => ({
     cacheUsedBytes: 1.8 * 1024 * 1024 * 1024,
     cacheMaxBytes: 5 * 1024 * 1024 * 1024,
     localLibrarySummary: {
-        trackCount: 148,
-        albumCount: 17,
-        artistCount: 12,
-        lastScanLabel: 'Dernier scan il y a 8 min',
-        scanState: 'ready',
+        trackCount: 0,
+        albumCount: 0,
+        artistCount: 0,
+        lastScanLabel: 'Aucun fichier local importe',
+        scanState: 'idle',
     },
     pcloudConnection: {
         status: 'connected',
@@ -79,7 +82,7 @@ export const useOfflineStore = create<OfflineStore>((set) => ({
             label: 'Stockage de l’appareil',
             description: 'Scanner les morceaux audio deja presents localement.',
             status: 'available',
-            detail: 'Acces local pret',
+            detail: 'Choisir des fichiers audio',
         },
         {
             id: 'app-import-folder',
@@ -87,7 +90,7 @@ export const useOfflineStore = create<OfflineStore>((set) => ({
             label: 'Dossier d’import Minstrel',
             description: 'Ajouter des fichiers a importer dans la bibliotheque.',
             status: 'available',
-            detail: '3 ajouts recents',
+            detail: 'Selection manuelle de fichiers',
         },
         {
             id: 'pcloud-source',
