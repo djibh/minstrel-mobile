@@ -58,12 +58,12 @@ export function PlayerControls({
           />
         </Pressable>
 
-        <Pressable onPress={onPrevious}>
+        <Pressable onPress={() => onPrevious()}>
           <SkipBack size={28} color={theme.colors.textPrimary} />
         </Pressable>
 
         <Pressable
-          onPress={onTogglePlayPause}
+          onPress={() => onTogglePlayPause()}
           style={{
             width: 72,
             height: 72,
@@ -80,11 +80,11 @@ export function PlayerControls({
           )}
         </Pressable>
 
-        <Pressable onPress={onNext}>
+        <Pressable onPress={() => onNext()}>
           <SkipForward size={28} color={theme.colors.textPrimary} />
         </Pressable>
 
-        <Pressable onPress={onCycleRepeat}>
+        <Pressable onPress={() => onCycleRepeat()}>
           <RepeatIcon
             size={20}
             color={

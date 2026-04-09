@@ -3,7 +3,8 @@ import { mapAlbumDto } from '@/domain/mappers/album.mapper';
 import { mapArtistDto } from '@/domain/mappers/artist.mapper';
 import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
 import { mapTrackDto } from '@/domain/mappers/track.mapper';
-import { usePlaybackStore } from '@/stores/playback.store';
+import { Track } from '@/domain/models/track.model';
+import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { useSearchStore } from '@/stores/search.store';
 import { routes } from '@/utils/routes';
 import { useRouter } from 'expo-router';
@@ -12,11 +13,11 @@ import { useEffect, useMemo, useState } from 'react';
 export function useSearchScreen() {
     const router = useRouter();
     const { query, setQuery, clearQuery } = useSearchStore();
-    const playbackStore = usePlaybackStore();
+    const { playTrack: playTrackAction } = usePlaybackActions();
 
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<{
-        tracks: any[];
+        tracks: Track[];
         albums: any[];
         artists: any[];
         playlists: any[];
@@ -67,10 +68,8 @@ export function useSearchScreen() {
         );
     }, [results]);
 
-    const playTrack = (track: any) => {
-        playbackStore.setQueue(results.tracks);
-        playbackStore.setCurrentTrack(track);
-        playbackStore.setIsPlaying(true);
+    const playTrack = async (track: Track) => {
+        await playTrackAction(track, results.tracks);
         router.push(routes.nowPlaying());
     };
 

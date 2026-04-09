@@ -60,7 +60,7 @@ export function MiniPlayer() {
             <SkipBack size={18} color={theme.colors.textSecondary} />
           </Pressable>
 
-          <Pressable onPress={togglePlayPause}>
+          <Pressable onPress={() => togglePlayPause()}>
             {isPlaying ? (
               <Pause size={20} color={theme.colors.textPrimary} />
             ) : (

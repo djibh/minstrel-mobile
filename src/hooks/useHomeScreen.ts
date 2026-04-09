@@ -1,6 +1,7 @@
 import { libraryApi } from '@/api/libraryApi';
 import { mapAlbumDto } from '@/domain/mappers/album.mapper';
 import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
+import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { usePlaybackStore } from '@/stores/playback.store';
 import { routes } from '@/utils/routes';
 import { useRouter } from 'expo-router';
@@ -9,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 export function useHomeScreen() {
     const router = useRouter();
     const playbackStore = usePlaybackStore();
+    const { togglePlayPause } = usePlaybackActions();
 
     const [recentAlbums, setRecentAlbums] = useState<any[]>([]);
     const [playlists, setPlaylists] = useState<any[]>([]);
@@ -54,7 +56,11 @@ export function useHomeScreen() {
         openPlaylist: (id: string) => router.push(routes.playlist(id)),
         resumePlayback: () => {
             if (!playbackStore.currentTrack) return;
-            playbackStore.setIsPlaying(true);
+
+            if (!playbackStore.isPlaying) {
+                togglePlayPause();
+            }
+
             router.push(routes.nowPlaying());
         },
         goToLibraryAlbums: () => router.push('/(tabs)/library'),

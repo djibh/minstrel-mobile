@@ -12,6 +12,10 @@ function sanitizeTimeValue(value: number) {
     return value;
 }
 
+function sanitizePlayNextReason(value: 'auto' | 'manual' | unknown): 'auto' | 'manual' {
+    return value === 'auto' ? 'auto' : 'manual';
+}
+
 function findTrackIndex(queue: Track[], currentTrack: Track | null) {
     if (!currentTrack) return -1;
     return queue.findIndex((x) => x.id === currentTrack.id);
@@ -153,17 +157,18 @@ export function usePlaybackActions() {
     };
 
     const playNext = async (reason: 'auto' | 'manual' = 'manual') => {
+        const effectiveReason = sanitizePlayNextReason(reason);
         const { currentTrack, queue, shuffleEnabled, repeatMode } = usePlaybackStore.getState();
         const nextTrack = resolveNextTrack({
             currentTrack,
             queue,
             shuffleEnabled,
             repeatMode,
-            reason,
+            reason: effectiveReason,
         });
 
         logPlayerDebug('playNext:resolved', {
-            reason,
+            reason: effectiveReason,
             currentTrackId: currentTrack?.id,
             nextTrackId: nextTrack?.id,
             shuffleEnabled,
@@ -172,7 +177,7 @@ export function usePlaybackActions() {
         });
 
         if (!nextTrack) {
-            if (reason === 'auto') {
+            if (effectiveReason === 'auto') {
                 usePlaybackStore.getState().setIsPlaying(false);
                 logPlayerDebug('playNext:stoppedAtQueueEnd', {
                     currentTrackId: currentTrack?.id,
