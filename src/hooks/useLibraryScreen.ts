@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { LibraryItem } from '@/domain/models/library-item.model';
 import { Track } from '@/domain/models/track.model';
 import { usePlaybackActions } from '@/hooks/usePlaybackActions';
+import { buildLocalAlbums, buildLocalArtists } from '@/hooks/useOfflineScreen';
 import { routes } from '@/utils/routes';
 
 function sortTracks(tracks: Track[], sortBy: 'alpha' | 'artist' | 'year' | 'recent') {
@@ -52,68 +53,6 @@ function sortArtists(artists: Artist[], sortBy: 'alpha' | 'artist' | 'year' | 'r
     return [...artists].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function buildLocalAlbums(tracks: Track[]) {
-    const albumMap = new Map<string, Album>();
-
-    tracks.forEach((track) => {
-        const key = `${track.sourceKind}:${track.albumTitle}`;
-        const existing = albumMap.get(key);
-
-        if (existing) {
-            existing.trackCount += 1;
-            return;
-        }
-
-        albumMap.set(key, {
-            id: `local-album-${track.albumTitle.toLowerCase().replace(/\s+/g, '-')}`,
-            sourceId: track.sourceId,
-            sourceKind: 'local',
-            title: track.albumTitle,
-            artistName: track.artistName,
-            year: null,
-            trackCount: 1,
-            coverUrl: track.coverUrl ?? null,
-            isOfflineAvailable: true,
-        });
-    });
-
-    return [...albumMap.values()];
-}
-
-function buildLocalArtists(tracks: Track[]) {
-    const artistMap = new Map<string, Artist>();
-
-    tracks.forEach((track) => {
-        const key = `${track.sourceKind}:${track.artistName}`;
-        const existing = artistMap.get(key);
-
-        if (existing) {
-            existing.trackCount += 1;
-            return;
-        }
-
-        artistMap.set(key, {
-            id: `local-artist-${track.artistName.toLowerCase().replace(/\s+/g, '-')}`,
-            sourceId: track.sourceId,
-            sourceKind: 'local',
-            name: track.artistName,
-            imageUrl: null,
-            albumCount: 1,
-            trackCount: 1,
-            subtitle: 'Bibliotheque locale',
-        });
-    });
-
-    return [...artistMap.values()].map((artist) => ({
-        ...artist,
-        albumCount: new Set(
-            tracks
-                .filter((track) => track.artistName === artist.name)
-                .map((track) => track.albumTitle)
-        ).size,
-    }));
-}
-
 function mergeLibraryItems<T extends LibraryItem>(
     remoteItems: T[],
     localItems: T[],
@@ -133,7 +72,7 @@ function mergeLibraryItems<T extends LibraryItem>(
 export function useLibraryScreen() {
     const router = useRouter();
     const playbackStore = usePlaybackStore();
-    const offlineItems = useOfflineStore((state) => state.offlineItems);
+    const localTracks = useOfflineStore((state) => state.localTracks);
     const { playTrack: playTrackAction } = usePlaybackActions();
 
     const {
@@ -152,50 +91,71 @@ export function useLibraryScreen() {
         async function load() {
             setIsLoading(true);
             setItems([]);
-
-            const localTracks = offlineItems
-                .map((item) => item.track)
-                .filter((track): track is Track => !!track && track.sourceKind === 'local');
             const localAlbums = buildLocalAlbums(localTracks);
             const localArtists = buildLocalArtists(localTracks);
+            const fallbackTracks = sortTracks(localTracks, sortBy);
+            const fallbackAlbums = sortAlbums(localAlbums, sortBy);
+            const fallbackArtists = sortArtists(localArtists, sortBy);
 
             try {
                 if (contentTab === 'albums') {
-                    const result = await libraryApi.getAlbums(sourceFilter, sortBy);
-                    const mapped = result.map(mapAlbumDto);
-                    const merged = mergeLibraryItems(mapped, localAlbums, sourceFilter);
-                    setItems(sortAlbums(merged, sortBy));
+                    try {
+                        const result = await libraryApi.getAlbums(sourceFilter, sortBy);
+                        const mapped = result.map(mapAlbumDto);
+                        const merged = mergeLibraryItems(mapped, localAlbums, sourceFilter);
+                        setItems(sortAlbums(merged, sortBy));
+                    } catch {
+                        setItems(
+                            sourceFilter === 'pcloud' ? [] : fallbackAlbums
+                        );
+                    }
                     return;
                 }
 
                 if (contentTab === 'artists') {
-                    const result = await libraryApi.getArtists(sourceFilter, sortBy);
-                    const mapped = result.map(mapArtistDto);
-                    const merged = mergeLibraryItems(mapped, localArtists, sourceFilter);
-                    setItems(sortArtists(merged, sortBy));
+                    try {
+                        const result = await libraryApi.getArtists(sourceFilter, sortBy);
+                        const mapped = result.map(mapArtistDto);
+                        const merged = mergeLibraryItems(mapped, localArtists, sourceFilter);
+                        setItems(sortArtists(merged, sortBy));
+                    } catch {
+                        setItems(
+                            sourceFilter === 'pcloud' ? [] : fallbackArtists
+                        );
+                    }
                     return;
                 }
 
                 if (contentTab === 'tracks') {
-                    const result = await libraryApi.getTracks(sourceFilter, sortBy);
-                    const mapped = result.map(mapTrackDto);
-                    const merged = mergeLibraryItems(mapped, localTracks, sourceFilter);
-                    setItems(sortTracks(merged, sortBy));
+                    try {
+                        const result = await libraryApi.getTracks(sourceFilter, sortBy);
+                        const mapped = result.map(mapTrackDto);
+                        const merged = mergeLibraryItems(mapped, localTracks, sourceFilter);
+                        setItems(sortTracks(merged, sortBy));
+                    } catch {
+                        setItems(
+                            sourceFilter === 'pcloud' ? [] : fallbackTracks
+                        );
+                    }
                     return;
                 }
 
-                const result = await libraryApi.getPlaylists(sourceFilter, sortBy);
-                const mapped = result.map(mapPlaylistDto);
-                setItems(
-                    sourceFilter === 'local' || sourceFilter === 'downloaded' ? [] : mapped
-                );
+                try {
+                    const result = await libraryApi.getPlaylists(sourceFilter, sortBy);
+                    const mapped = result.map(mapPlaylistDto);
+                    setItems(
+                        sourceFilter === 'local' || sourceFilter === 'downloaded' ? [] : mapped
+                    );
+                } catch {
+                    setItems([]);
+                }
             } finally {
                 setIsLoading(false);
             }
         }
 
         load();
-    }, [contentTab, sourceFilter, sortBy, offlineItems]);
+    }, [contentTab, sourceFilter, sortBy, localTracks]);
 
     return {
         contentTab,

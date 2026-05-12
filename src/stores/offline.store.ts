@@ -49,6 +49,7 @@ type OfflineStore = {
     importSources: ImportSourceItem[];
     downloads: DownloadItem[];
     offlineItems: OfflineMediaItem[];
+    localTracks: Track[];
 
     setCacheUsedBytes: (value: number) => void;
     setCacheMaxBytes: (value: number) => void;
@@ -57,6 +58,7 @@ type OfflineStore = {
     setImportSources: (items: ImportSourceItem[]) => void;
     setDownloads: (downloads: DownloadItem[]) => void;
     setOfflineItems: (items: OfflineMediaItem[]) => void;
+    setLocalTracks: (tracks: Track[]) => void;
 };
 
 export const useOfflineStore = create<OfflineStore>((set) => ({
@@ -137,6 +139,7 @@ export const useOfflineStore = create<OfflineStore>((set) => ({
             subtitle: 'Lena Vale',
         },
     ],
+    localTracks: [],
 
     setCacheUsedBytes: (cacheUsedBytes) => set({ cacheUsedBytes }),
     setCacheMaxBytes: (cacheMaxBytes) => set({ cacheMaxBytes }),
@@ -145,4 +148,5 @@ export const useOfflineStore = create<OfflineStore>((set) => ({
     setImportSources: (importSources) => set({ importSources }),
     setDownloads: (downloads) => set({ downloads }),
     setOfflineItems: (offlineItems) => set({ offlineItems }),
+    setLocalTracks: (localTracks) => set({ localTracks }),
 }));

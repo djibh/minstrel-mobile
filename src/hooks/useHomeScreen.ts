@@ -1,15 +1,34 @@
 import { libraryApi } from '@/api/libraryApi';
 import { mapAlbumDto } from '@/domain/mappers/album.mapper';
 import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
+import { Album } from '@/domain/models/album.model';
 import { usePlaybackActions } from '@/hooks/usePlaybackActions';
+import { buildLocalAlbums } from '@/hooks/useOfflineScreen';
+import { useOfflineStore } from '@/stores/offline.store';
 import { usePlaybackStore } from '@/stores/playback.store';
 import { routes } from '@/utils/routes';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 
+function mergeRecentAlbums(remoteAlbums: Album[], localAlbums: Album[]) {
+    const merged = [...localAlbums, ...remoteAlbums];
+    const seen = new Set<string>();
+
+    return merged.filter((album) => {
+        const key = `${album.sourceKind}:${album.title}:${album.artistName}`;
+        if (seen.has(key)) {
+            return false;
+        }
+
+        seen.add(key);
+        return true;
+    });
+}
+
 export function useHomeScreen() {
     const router = useRouter();
     const playbackStore = usePlaybackStore();
+    const localTracks = useOfflineStore((state) => state.localTracks);
     const { togglePlayPause } = usePlaybackActions();
 
     const [recentAlbums, setRecentAlbums] = useState<any[]>([]);
@@ -21,20 +40,31 @@ export function useHomeScreen() {
             setIsLoading(true);
 
             try {
-                const [albumsResult, playlistsResult] = await Promise.all([
-                    libraryApi.getAlbums('all', 'alpha'),
-                    libraryApi.getPlaylists('all', 'alpha'),
-                ]);
+                const localAlbums = buildLocalAlbums(localTracks);
+                try {
+                    const [albumsResult, playlistsResult] = await Promise.all([
+                        libraryApi.getAlbums('all', 'alpha'),
+                        libraryApi.getPlaylists('all', 'alpha'),
+                    ]);
 
-                setRecentAlbums(albumsResult.map(mapAlbumDto).slice(0, 6));
-                setPlaylists(playlistsResult.map(mapPlaylistDto).slice(0, 4));
+                    const mergedAlbums = mergeRecentAlbums(
+                        albumsResult.map(mapAlbumDto),
+                        localAlbums
+                    );
+
+                    setRecentAlbums(mergedAlbums.slice(0, 6));
+                    setPlaylists(playlistsResult.map(mapPlaylistDto).slice(0, 4));
+                } catch {
+                    setRecentAlbums(localAlbums.slice(0, 6));
+                    setPlaylists([]);
+                }
             } finally {
                 setIsLoading(false);
             }
         }
 
         load();
-    }, []);
+    }, [localTracks]);
 
     const continueListening = useMemo(() => {
         if (!playbackStore.currentTrack) return null;
