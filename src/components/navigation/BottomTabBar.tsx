@@ -56,9 +56,7 @@ export function BottomTabBar({ state, navigation }: BottomTabBarProps) {
                 borderRadius: theme.radius.md,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: isFocused
-                  ? theme.colors.accentSoft
-                  : "transparent",
+                backgroundColor: "transparent"
               }}
             >
               <Icon
