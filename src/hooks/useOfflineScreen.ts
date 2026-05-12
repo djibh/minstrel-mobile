@@ -1,4 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker';
+import { Directory, File, Paths } from 'expo-file-system';
 import { Album } from '@/domain/models/album.model';
 import { Artist } from '@/domain/models/artist.model';
 import { Track } from '@/domain/models/track.model';
@@ -6,6 +7,17 @@ import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { useOfflineStore } from '@/stores/offline.store';
 import { useRouter } from 'expo-router';
 import { routes } from '@/utils/routes';
+
+function copyToAudioDir(sourceUri: string, filename: string): string {
+    const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const audioDir = new Directory(Paths.document, 'audio');
+    audioDir.create({ idempotent: true });
+    const destFile = new File(audioDir, safeFilename);
+    if (!destFile.exists) {
+        new File(sourceUri).copy(destFile);
+    }
+    return destFile.uri;
+}
 
 function stripFileExtension(fileName: string) {
     return fileName.replace(/\.[^/.]+$/, '');
@@ -167,23 +179,31 @@ export function useOfflineScreen() {
                 return;
             }
 
-            const importedTracks: Track[] = result.assets.map((asset, index) => {
+            const importedTracks: Track[] = result.assets.map((asset) => {
                 const metadata = extractTrackMetadata(asset.name);
+                const safeFilename = asset.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const permanentUri = copyToAudioDir(asset.uri, asset.name);
 
                 return {
-                    id: `local-${Date.now()}-${index}`,
+                    id: `local-${safeFilename}`,
                     sourceId: 'device-storage',
-                    sourceKind: 'local',
+                    sourceKind: 'local' as const,
                     title: metadata.title,
                     artistName: metadata.artistName,
                     albumTitle: metadata.albumTitle,
                     subtitle: `${metadata.artistName} · ${metadata.albumTitle}`,
                     durationLabel: '--:--',
-                    streamUri: asset.uri,
+                    streamUri: permanentUri,
                     coverUrl: null,
                     isOfflineAvailable: true,
                 };
             });
+
+            const newIds = new Set(importedTracks.map((t) => t.id));
+            const mergedLocalTracks = [
+                ...previousLocalTracks.filter((t) => !newIds.has(t.id)),
+                ...importedTracks,
+            ];
 
             const importedItems = importedTracks.map((track, index) => ({
                 id: track.id,
@@ -194,20 +214,21 @@ export function useOfflineScreen() {
                 track,
             }));
 
-            const localAlbums = buildLocalAlbums(importedTracks);
-            const localArtists = buildLocalArtists(importedTracks);
-            setLocalTracks(importedTracks);
-
-            setOfflineItems([
+            const mergedOfflineItems = [
                 ...importedItems,
-                ...previousItems.filter((item) => item.sourceLabel !== 'Local'),
-            ]);
+                ...previousItems.filter((item) => item.sourceLabel !== 'Local' || !newIds.has(item.id)),
+            ];
+
+            const localAlbums = buildLocalAlbums(mergedLocalTracks);
+            const localArtists = buildLocalArtists(mergedLocalTracks);
+            setLocalTracks(mergedLocalTracks);
+            setOfflineItems(mergedOfflineItems);
 
             setLocalLibrarySummary({
-                trackCount: importedItems.length,
+                trackCount: mergedLocalTracks.length,
                 albumCount: localAlbums.length,
                 artistCount: localArtists.length,
-                lastScanLabel: `${importedItems.length} fichier(s) local(aux) importé(s)`,
+                lastScanLabel: `${mergedLocalTracks.length} fichier(s) local(aux) importé(s)`,
                 scanState: 'ready',
             });
 
@@ -216,8 +237,8 @@ export function useOfflineScreen() {
                     item.kind === 'device' || item.kind === 'folder'
                         ? {
                             ...item,
-                            status: importedItems.length > 0 ? 'connected' : 'available',
-                            detail: `${importedItems.length} fichier(s) prêt(s)`,
+                            status: mergedLocalTracks.length > 0 ? 'connected' : 'available',
+                            detail: `${mergedLocalTracks.length} fichier(s) prêt(s)`,
                         }
                         : item
                 )

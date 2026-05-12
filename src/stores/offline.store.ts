@@ -1,5 +1,7 @@
 import { Track } from '@/domain/models/track.model';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type DownloadItem = {
     id: string;
@@ -61,7 +63,9 @@ type OfflineStore = {
     setLocalTracks: (tracks: Track[]) => void;
 };
 
-export const useOfflineStore = create<OfflineStore>((set) => ({
+export const useOfflineStore = create<OfflineStore>()(
+    persist(
+        (set) => ({
     cacheUsedBytes: 1.8 * 1024 * 1024 * 1024,
     cacheMaxBytes: 5 * 1024 * 1024 * 1024,
     localLibrarySummary: {
@@ -149,4 +153,15 @@ export const useOfflineStore = create<OfflineStore>((set) => ({
     setDownloads: (downloads) => set({ downloads }),
     setOfflineItems: (offlineItems) => set({ offlineItems }),
     setLocalTracks: (localTracks) => set({ localTracks }),
-}));
+        }),
+        {
+            name: 'minstrel-offline-store',
+            storage: createJSONStorage(() => AsyncStorage),
+            partialize: (state) => ({
+                localTracks: state.localTracks,
+                offlineItems: state.offlineItems,
+                localLibrarySummary: state.localLibrarySummary,
+            }),
+        }
+    )
+);
