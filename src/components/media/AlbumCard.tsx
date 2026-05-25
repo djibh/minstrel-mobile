@@ -11,7 +11,7 @@ type Props = {
 export function AlbumCard({ album, onPress }: Props) {
   return (
     <Pressable onPress={onPress} style={{ width: "48%" }}>
-      <AlbumCover size="100%" radius={theme.radius.lg} />
+      <AlbumCover size="100%" radius={theme.radius.lg} coverUrl={album.coverUrl} />
 
       <Text
         numberOfLines={1}

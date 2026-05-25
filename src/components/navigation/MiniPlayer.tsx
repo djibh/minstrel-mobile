@@ -38,7 +38,7 @@ export function MiniPlayer() {
           gap: theme.spacing.md,
         }}
       >
-        <AlbumCover size={48} radius={theme.radius.md} />
+        <AlbumCover size={48} radius={theme.radius.md} coverUrl={currentTrack.coverUrl} />
 
         <View style={{ flex: 1 }}>
           <Text

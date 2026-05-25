@@ -4,7 +4,7 @@ import { Album } from '@/domain/models/album.model';
 import { Artist } from '@/domain/models/artist.model';
 import { Track } from '@/domain/models/track.model';
 import { usePlaybackActions } from '@/hooks/usePlaybackActions';
-import { useOfflineStore } from '@/stores/offline.store';
+import { PendingImportAsset, useOfflineStore } from '@/stores/offline.store';
 import { useRouter } from 'expo-router';
 import { routes } from '@/utils/routes';
 
@@ -144,13 +144,54 @@ export function useOfflineScreen() {
         downloads,
         offlineItems,
         localTracks,
+        pendingImportAssets,
         setImportSources,
         setLocalLibrarySummary,
         setOfflineItems,
         setLocalTracks,
+        setPendingImportAssets,
     } = useOfflineStore();
 
-    const importLocalAudio = async () => {
+    const pickLocalAudio = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: 'audio/*',
+                multiple: true,
+                copyToCacheDirectory: true,
+            });
+
+            if (result.canceled || result.assets.length === 0) return;
+
+            const pending: PendingImportAsset[] = result.assets.map((asset) => {
+                const metadata = extractTrackMetadata(asset.name);
+                const safeFilename = asset.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                return {
+                    id: `local-${safeFilename}`,
+                    name: asset.name,
+                    uri: asset.uri,
+                    size: asset.size,
+                    title: metadata.title,
+                    artistName: metadata.artistName,
+                    albumTitle: metadata.albumTitle,
+                };
+            });
+
+            setPendingImportAssets(pending);
+        } catch {
+            setImportSources(
+                useOfflineStore.getState().importSources.map((item) =>
+                    item.kind === 'device' || item.kind === 'folder'
+                        ? { ...item, status: 'attention', detail: "Impossible d'ouvrir le sélecteur" }
+                        : item
+                )
+            );
+        }
+    };
+
+    const confirmImport = () => {
+        const assets = useOfflineStore.getState().pendingImportAssets;
+        if (assets.length === 0) return;
+
         const previousItems = useOfflineStore.getState().offlineItems;
         const previousLocalTracks = useOfflineStore.getState().localTracks;
 
@@ -160,108 +201,78 @@ export function useOfflineScreen() {
             lastScanLabel: 'Import local en cours...',
         });
 
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: 'audio/*',
-                multiple: true,
-                copyToCacheDirectory: true,
-            });
+        const importedTracks: Track[] = assets.map((asset) => {
+            const permanentUri = copyToAudioDir(asset.uri, asset.name);
+            return {
+                id: asset.id,
+                sourceId: 'device-storage',
+                sourceKind: 'local' as const,
+                title: asset.title,
+                artistName: asset.artistName,
+                albumTitle: asset.albumTitle,
+                subtitle: `${asset.artistName} · ${asset.albumTitle}`,
+                durationLabel: '--:--',
+                streamUri: permanentUri,
+                coverUrl: null,
+                isOfflineAvailable: true,
+            };
+        });
 
-            if (result.canceled || result.assets.length === 0) {
-                setLocalLibrarySummary({
-                    ...useOfflineStore.getState().localLibrarySummary,
-                    scanState: previousLocalTracks.length > 0 ? 'ready' : 'idle',
-                    lastScanLabel:
-                        previousLocalTracks.length > 0
-                            ? `${previousLocalTracks.length} fichier(s) local(aux) importé(s)`
-                            : 'Aucun fichier local importe',
-                });
-                return;
-            }
+        const newIds = new Set(importedTracks.map((t) => t.id));
+        const mergedLocalTracks = [
+            ...previousLocalTracks.filter((t) => !newIds.has(t.id)),
+            ...importedTracks,
+        ];
 
-            const importedTracks: Track[] = result.assets.map((asset) => {
-                const metadata = extractTrackMetadata(asset.name);
-                const safeFilename = asset.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                const permanentUri = copyToAudioDir(asset.uri, asset.name);
+        const importedItems = importedTracks.map((track, index) => ({
+            id: track.id,
+            type: 'track' as const,
+            title: track.title,
+            subtitle: `${track.artistName} · ${track.albumTitle} · ${formatBytes(assets[index]?.size)}`,
+            sourceLabel: 'Local',
+            track,
+        }));
 
-                return {
-                    id: `local-${safeFilename}`,
-                    sourceId: 'device-storage',
-                    sourceKind: 'local' as const,
-                    title: metadata.title,
-                    artistName: metadata.artistName,
-                    albumTitle: metadata.albumTitle,
-                    subtitle: `${metadata.artistName} · ${metadata.albumTitle}`,
-                    durationLabel: '--:--',
-                    streamUri: permanentUri,
-                    coverUrl: null,
-                    isOfflineAvailable: true,
-                };
-            });
+        const mergedOfflineItems = [
+            ...importedItems,
+            ...previousItems.filter((item) => item.sourceLabel !== 'Local' || !newIds.has(item.id)),
+        ];
 
-            const newIds = new Set(importedTracks.map((t) => t.id));
-            const mergedLocalTracks = [
-                ...previousLocalTracks.filter((t) => !newIds.has(t.id)),
-                ...importedTracks,
-            ];
+        const localAlbums = buildLocalAlbums(mergedLocalTracks);
+        const localArtists = buildLocalArtists(mergedLocalTracks);
+        setLocalTracks(mergedLocalTracks);
+        setOfflineItems(mergedOfflineItems);
+        setPendingImportAssets([]);
 
-            const importedItems = importedTracks.map((track, index) => ({
-                id: track.id,
-                type: 'track' as const,
-                title: track.title,
-                subtitle: `${track.artistName} · ${track.albumTitle} · ${formatBytes(result.assets[index]?.size)}`,
-                sourceLabel: 'Local',
-                track,
-            }));
+        setLocalLibrarySummary({
+            trackCount: mergedLocalTracks.length,
+            albumCount: localAlbums.length,
+            artistCount: localArtists.length,
+            lastScanLabel: `${mergedLocalTracks.length} fichier(s) local(aux) importé(s)`,
+            scanState: 'ready',
+        });
 
-            const mergedOfflineItems = [
-                ...importedItems,
-                ...previousItems.filter((item) => item.sourceLabel !== 'Local' || !newIds.has(item.id)),
-            ];
+        setImportSources(
+            useOfflineStore.getState().importSources.map((item) =>
+                item.kind === 'device' || item.kind === 'folder'
+                    ? {
+                        ...item,
+                        status: mergedLocalTracks.length > 0 ? 'connected' : 'available',
+                        detail: `${mergedLocalTracks.length} fichier(s) prêt(s)`,
+                    }
+                    : item
+            )
+        );
+    };
 
-            const localAlbums = buildLocalAlbums(mergedLocalTracks);
-            const localArtists = buildLocalArtists(mergedLocalTracks);
-            setLocalTracks(mergedLocalTracks);
-            setOfflineItems(mergedOfflineItems);
+    const cancelImport = () => {
+        setPendingImportAssets([]);
+    };
 
-            setLocalLibrarySummary({
-                trackCount: mergedLocalTracks.length,
-                albumCount: localAlbums.length,
-                artistCount: localArtists.length,
-                lastScanLabel: `${mergedLocalTracks.length} fichier(s) local(aux) importé(s)`,
-                scanState: 'ready',
-            });
-
-            setImportSources(
-                useOfflineStore.getState().importSources.map((item) =>
-                    item.kind === 'device' || item.kind === 'folder'
-                        ? {
-                            ...item,
-                            status: mergedLocalTracks.length > 0 ? 'connected' : 'available',
-                            detail: `${mergedLocalTracks.length} fichier(s) prêt(s)`,
-                        }
-                        : item
-                )
-            );
-        } catch {
-            setLocalLibrarySummary({
-                ...useOfflineStore.getState().localLibrarySummary,
-                scanState: 'idle',
-                lastScanLabel: 'Import local indisponible',
-            });
-
-            setImportSources(
-                useOfflineStore.getState().importSources.map((item) =>
-                    item.kind === 'device' || item.kind === 'folder'
-                        ? {
-                            ...item,
-                            status: 'attention',
-                            detail: 'Impossible d\'ouvrir le selecteur',
-                        }
-                        : item
-                )
-            );
-        }
+    const removePendingAsset = (id: string) => {
+        setPendingImportAssets(
+            useOfflineStore.getState().pendingImportAssets.filter((a) => a.id !== id)
+        );
     };
 
     const playOfflineItem = async (itemId: string) => {
@@ -284,7 +295,11 @@ export function useOfflineScreen() {
         downloads,
         offlineItems,
         localTracks,
-        importLocalAudio,
+        pendingImportAssets,
+        pickLocalAudio,
+        confirmImport,
+        cancelImport,
+        removePendingAsset,
         playOfflineItem,
     };
 }

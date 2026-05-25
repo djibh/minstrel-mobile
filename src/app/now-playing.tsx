@@ -1,5 +1,6 @@
 import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
+import { AlbumCover } from "@/components/media/AlbumCover";
 import { PlaybackProgress } from "@/components/player/PlaybackProgress";
 import { PlayerActionRow } from "@/components/player/PlayerActionRow";
 import { PlayerControls } from "@/components/player/PlayerControls";
@@ -26,15 +27,13 @@ export default function NowPlayingScreen() {
     <AppScreen scrollable>
       <ScreenHeader title="Lecture en cours" />
 
-      <View
-        style={{
-          width: "100%",
-          aspectRatio: 1,
-          borderRadius: theme.radius.xl,
-          backgroundColor: theme.colors.surfaceAlt,
-          marginBottom: theme.spacing.xxl,
-        }}
-      />
+      <View style={{ width: "100%", marginBottom: theme.spacing.xxl }}>
+        <AlbumCover
+          size="100%"
+          radius={theme.radius.xl}
+          coverUrl={vm.currentTrack.coverUrl}
+        />
+      </View>
 
       <View style={{ marginBottom: theme.spacing.xl }}>
         <Text

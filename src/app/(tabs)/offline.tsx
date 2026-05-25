@@ -3,6 +3,7 @@ import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { DownloadProgressCard } from "@/components/offline/DownloadProgressCard";
+import { ImportConfirmSheet } from "@/components/offline/ImportConfirmSheet";
 import { ImportSourcesList } from "@/components/offline/ImportSourcesList";
 import { LocalLibraryCard } from "@/components/offline/LocalLibraryCard";
 import { OfflineContentList } from "@/components/offline/OfflineContentList";
@@ -22,9 +23,16 @@ export default function OfflineScreen() {
         subtitle="Local, imports, pCloud et contenus téléchargés"
       />
 
+      <ImportConfirmSheet
+        assets={vm.pendingImportAssets}
+        onConfirm={vm.confirmImport}
+        onCancel={vm.cancelImport}
+        onRemove={vm.removePendingAsset}
+      />
+
       <LocalLibraryCard
         summary={vm.localLibrarySummary}
-        onImportFiles={() => void vm.importLocalAudio()}
+        onImportFiles={() => void vm.pickLocalAudio()}
       />
 
       <View style={{ height: theme.spacing.xxxl }} />
@@ -41,7 +49,7 @@ export default function OfflineScreen() {
         items={vm.importSources}
         onPressItem={(item) => {
           if (item.kind === "device" || item.kind === "folder") {
-            void vm.importLocalAudio();
+            void vm.pickLocalAudio();
           }
         }}
       />

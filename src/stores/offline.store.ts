@@ -43,6 +43,16 @@ export type ImportSourceItem = {
     detail?: string;
 };
 
+export type PendingImportAsset = {
+    id: string;
+    name: string;
+    uri: string;
+    size?: number | null;
+    title: string;
+    artistName: string;
+    albumTitle: string;
+};
+
 type OfflineStore = {
     cacheUsedBytes: number;
     cacheMaxBytes: number;
@@ -52,6 +62,7 @@ type OfflineStore = {
     downloads: DownloadItem[];
     offlineItems: OfflineMediaItem[];
     localTracks: Track[];
+    pendingImportAssets: PendingImportAsset[];
 
     setCacheUsedBytes: (value: number) => void;
     setCacheMaxBytes: (value: number) => void;
@@ -61,6 +72,7 @@ type OfflineStore = {
     setDownloads: (downloads: DownloadItem[]) => void;
     setOfflineItems: (items: OfflineMediaItem[]) => void;
     setLocalTracks: (tracks: Track[]) => void;
+    setPendingImportAssets: (assets: PendingImportAsset[]) => void;
 };
 
 export const useOfflineStore = create<OfflineStore>()(
@@ -144,6 +156,7 @@ export const useOfflineStore = create<OfflineStore>()(
         },
     ],
     localTracks: [],
+    pendingImportAssets: [],
 
     setCacheUsedBytes: (cacheUsedBytes) => set({ cacheUsedBytes }),
     setCacheMaxBytes: (cacheMaxBytes) => set({ cacheMaxBytes }),
@@ -153,6 +166,7 @@ export const useOfflineStore = create<OfflineStore>()(
     setDownloads: (downloads) => set({ downloads }),
     setOfflineItems: (offlineItems) => set({ offlineItems }),
     setLocalTracks: (localTracks) => set({ localTracks }),
+    setPendingImportAssets: (pendingImportAssets) => set({ pendingImportAssets }),
         }),
         {
             name: 'minstrel-offline-store',
