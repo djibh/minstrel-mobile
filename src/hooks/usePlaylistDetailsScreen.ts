@@ -10,7 +10,6 @@ import { usePlaybackActions } from './usePlaybackActions';
 export function usePlaylistDetailsScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const playbackStore = usePlaybackStore();
     const { playTrack: playTrackAction } = usePlaybackActions();
 
     const [playlist, setPlaylist] = useState<any | null>(null);
@@ -64,7 +63,17 @@ export function usePlaylistDetailsScreen() {
     const playPlaylist = async () => {
         if (!tracks.length) return;
 
+        usePlaybackStore.getState().setShuffleEnabled(false);
         await playTrackAction(tracks[0], tracks);
+        router.push(routes.nowPlaying());
+    };
+
+    const shufflePlaylist = async () => {
+        if (!tracks.length) return;
+
+        usePlaybackStore.getState().setShuffleEnabled(true);
+        const randomTrack = tracks[Math.floor(Math.random() * tracks.length)];
+        await playTrackAction(randomTrack, tracks);
         router.push(routes.nowPlaying());
     };
 
@@ -79,6 +88,7 @@ export function usePlaylistDetailsScreen() {
         isLoading,
         playlistMeta,
         playPlaylist,
+        shufflePlaylist,
         playTrack,
     };
 }

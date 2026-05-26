@@ -85,7 +85,7 @@ export default function AlbumDetailsScreen() {
         }}
       >
         <PrimaryButton label="Lire" onPress={vm.playAlbum} />
-        <SecondaryButton label="Shuffle" onPress={vm.playAlbum} />
+        <SecondaryButton label="Shuffle" onPress={vm.shuffleAlbum} />
       </View>
 
       <View

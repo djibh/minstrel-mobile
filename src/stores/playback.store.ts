@@ -26,6 +26,7 @@ type PlaybackStore = {
     markSeekedAt: (value: number) => void;
     setIsTransitioning: (value: boolean) => void;
     toggleShuffle: () => void;
+    setShuffleEnabled: (value: boolean) => void;
 };
 
 export const usePlaybackStore = create<PlaybackStore>((set) => ({
@@ -58,4 +59,5 @@ export const usePlaybackStore = create<PlaybackStore>((set) => ({
     markSeekedAt: (lastSeekAt) => set({ lastSeekAt }),
     setIsTransitioning: (isTransitioning) => set({ isTransitioning }),
     toggleShuffle: () => set((state) => ({ shuffleEnabled: !state.shuffleEnabled })),
+    setShuffleEnabled: (shuffleEnabled) => set({ shuffleEnabled }),
 }));
