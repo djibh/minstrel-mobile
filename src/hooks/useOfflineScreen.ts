@@ -291,6 +291,14 @@ export function useOfflineScreen() {
         );
     };
 
+    const connectPcloud = () => {
+        // pCloud auth flow — à implémenter
+    };
+
+    const managePcloud = () => {
+        // gestion du compte pCloud connecté — à implémenter
+    };
+
     const cancelImport = () => {
         setPendingImportAssets([]);
     };
@@ -327,5 +335,7 @@ export function useOfflineScreen() {
         cancelImport,
         removePendingAsset,
         playOfflineItem,
+        connectPcloud,
+        managePcloud,
     };
 }

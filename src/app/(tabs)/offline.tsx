@@ -39,7 +39,11 @@ export default function OfflineScreen() {
 
       <SectionHeader title="pCloud" actionLabel="Configurer" />
 
-      <PcloudConnectionCard connection={vm.pcloudConnection} />
+      <PcloudConnectionCard
+        connection={vm.pcloudConnection}
+        onConnect={vm.connectPcloud}
+        onManage={vm.managePcloud}
+      />
 
       <View style={{ height: theme.spacing.xxxl }} />
 

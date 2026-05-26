@@ -191,10 +191,12 @@ Le projet dispose d’un player fonctionnel et d’une bibliothèque navigable :
 - Tri et filtrage par source
 - Favoris (ajout / suppression)
 
-**Offline**
+**Offline / Sources**
 - Scan de la bibliothèque locale (stockage appareil)
-- Téléchargements avec suivi de progression
-- Extraction des métadonnées audio (via `music-metadata-browser`)
+- Import de fichiers audio avec extraction de métadonnées (via `music-metadata-browser`)
+- Calcul réel de l'espace disque utilisé par la bibliothèque locale
+- UI pCloud : état connecté (compte, stats, gestion) et état déconnecté (CTA de connexion)
+- Authentification pCloud déléguée à l'API backend .NET
 
 **Recherche**
 - Recherche via l’API backend
@@ -278,20 +280,29 @@ Gère :
 - File d'attente
 - Recherche
 - Favoris
-- Tri dans la bibliothèque
-- Offline : scan local, téléchargements
+- Tri dans la bibliothèque (recent, A-Z, Z-A, année pour les albums)
+- Offline : import local, calcul de l'espace disque réel
 - Écrans dédiés album / artiste / playlist
+- UI pCloud : deux états (connecté / déconnecté avec CTA)
 
 ### En cours
 
-- Workflow d'import (multi-source, confirmation)
+- Authentification pCloud via l'API backend .NET
 - Covers : extraction et cache depuis les fichiers locaux
 
 ### À venir
 
+**Sources distantes**
+- pCloud — auth + browsing + import (en cours)
+- Dropbox — profil similaire à pCloud, priorité haute
+- WebDAV — protocole générique (Nextcloud, Synology, Owncloud, NAS)
+- Google Drive
+- OneDrive
+- Subsonic / OpenSubsonic — pour les utilisateurs avec un serveur de musique dédié (Navidrome, Airsonic, Funkwhale)
+
+**Autres**
 - Recherche dans la bibliothèque offline (indexation locale)
 - Playlists custom (création / édition)
-- Intégration sources externes (pCloud, etc.)
 - Gestion des erreurs (fichiers corrompus, source indisponible)
 - Polish Now Playing : transitions, gestes swipe-to-dismiss
 - Paramètres audio (equalizer si supporté par expo-audio)
