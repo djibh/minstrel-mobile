@@ -51,6 +51,7 @@ export type PendingImportAsset = {
     title: string;
     artistName: string;
     albumTitle: string;
+    coverUrl?: string | null;
 };
 
 type OfflineStore = {

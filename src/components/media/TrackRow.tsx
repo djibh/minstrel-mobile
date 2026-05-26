@@ -1,7 +1,7 @@
 import { Track } from "@/domain/models/track.model";
 import { theme } from "@/theme";
-import { Play } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
+import { AlbumCover } from "./AlbumCover";
 
 type Props = {
   track: Track;
@@ -19,18 +19,7 @@ export function TrackRow({ track, onPress }: Props) {
         paddingVertical: theme.spacing.md,
       }}
     >
-      <View
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: theme.colors.surfaceAlt,
-        }}
-      >
-        <Play size={16} color={theme.colors.textSecondary} />
-      </View>
+      <AlbumCover size={40} radius={theme.radius.sm} coverUrl={track.coverUrl} />
 
       <View style={{ flex: 1 }}>
         <Text

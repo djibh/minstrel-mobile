@@ -7,6 +7,7 @@ import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { PendingImportAsset, useOfflineStore } from '@/stores/offline.store';
 import { useRouter } from 'expo-router';
 import { routes } from '@/utils/routes';
+import { readAudioMetadata } from '@/utils/audioMetadata';
 
 function copyToAudioDir(sourceUri: string, filename: string): string {
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -162,19 +163,24 @@ export function useOfflineScreen() {
 
             if (result.canceled || result.assets.length === 0) return;
 
-            const pending: PendingImportAsset[] = result.assets.map((asset) => {
-                const metadata = extractTrackMetadata(asset.name);
-                const safeFilename = asset.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                return {
-                    id: `local-${safeFilename}`,
-                    name: asset.name,
-                    uri: asset.uri,
-                    size: asset.size,
-                    title: metadata.title,
-                    artistName: metadata.artistName,
-                    albumTitle: metadata.albumTitle,
-                };
-            });
+            const pending: PendingImportAsset[] = await Promise.all(
+                result.assets.map(async (asset) => {
+                    const safeFilename = asset.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    const trackId = `local-${safeFilename}`;
+                    const filenameMeta = extractTrackMetadata(asset.name);
+                    const audioMeta = await readAudioMetadata(asset.uri, trackId);
+                    return {
+                        id: trackId,
+                        name: asset.name,
+                        uri: asset.uri,
+                        size: asset.size,
+                        title: audioMeta.title || filenameMeta.title,
+                        artistName: audioMeta.artist || filenameMeta.artistName,
+                        albumTitle: audioMeta.album || filenameMeta.albumTitle,
+                        coverUrl: audioMeta.coverUrl,
+                    };
+                })
+            );
 
             setPendingImportAssets(pending);
         } catch {
@@ -213,7 +219,7 @@ export function useOfflineScreen() {
                 subtitle: `${asset.artistName} · ${asset.albumTitle}`,
                 durationLabel: '--:--',
                 streamUri: permanentUri,
-                coverUrl: null,
+                coverUrl: asset.coverUrl ?? null,
                 isOfflineAvailable: true,
             };
         });

@@ -1,6 +1,7 @@
 import { Playlist } from "@/domain/models/playlist.model";
 import { theme } from "@/theme";
 import { Pressable, Text, View } from "react-native";
+import { AlbumCover } from "./AlbumCover";
 
 type Props = {
   playlist: Playlist;
@@ -18,14 +19,7 @@ export function PlaylistCard({ playlist, onPress }: Props) {
         paddingVertical: theme.spacing.md,
       }}
     >
-      <View
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: theme.radius.md,
-          backgroundColor: theme.colors.surfaceAlt,
-        }}
-      />
+      <AlbumCover size={56} radius={theme.radius.md} coverUrl={playlist.coverUrl} />
 
       <View style={{ flex: 1 }}>
         <Text

@@ -1,7 +1,8 @@
+import { AlbumCover } from '@/components/media/AlbumCover';
 import { PendingImportAsset } from '@/stores/offline.store';
 import { theme } from '@/theme';
 import { formatBytes } from '@/utils/formatBytes';
-import { Music2, X } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import {
     Modal,
     Pressable,
@@ -118,19 +119,7 @@ export function ImportConfirmSheet({ assets, onConfirm, onCancel, onRemove }: Pr
                                             paddingVertical: theme.spacing.md,
                                         }}
                                     >
-                                        <View
-                                            style={{
-                                                width: 44,
-                                                height: 44,
-                                                borderRadius: theme.radius.md,
-                                                backgroundColor: theme.colors.surfaceAlt,
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                flexShrink: 0,
-                                            }}
-                                        >
-                                            <Music2 size={18} color={theme.colors.textMuted} strokeWidth={1.5} />
-                                        </View>
+                                        <AlbumCover size={44} radius={theme.radius.md} coverUrl={asset.coverUrl} />
 
                                         <View style={{ flex: 1, gap: 2 }}>
                                             <Text
