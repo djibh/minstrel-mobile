@@ -7,6 +7,7 @@ import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { PendingImportAsset, useOfflineStore } from '@/stores/offline.store';
 import { useRouter } from 'expo-router';
 import { routes } from '@/utils/routes';
+import { useEffect } from 'react';
 import { readAudioMetadata } from '@/utils/audioMetadata';
 
 function copyToAudioDir(sourceUri: string, filename: string): string {
@@ -146,12 +147,31 @@ export function useOfflineScreen() {
         offlineItems,
         localTracks,
         pendingImportAssets,
+        setCacheUsedBytes,
         setImportSources,
         setLocalLibrarySummary,
         setOfflineItems,
         setLocalTracks,
         setPendingImportAssets,
     } = useOfflineStore();
+
+    useEffect(() => {
+        try {
+            const audioDir = new Directory(Paths.document, 'audio');
+            if (!audioDir.exists) {
+                setCacheUsedBytes(0);
+                return;
+            }
+            const files = audioDir.list();
+            const totalBytes = files.reduce(
+                (sum, item) => sum + (item instanceof File ? (item.size ?? 0) : 0),
+                0
+            );
+            setCacheUsedBytes(totalBytes);
+        } catch {
+            // leave previous value if reading fails
+        }
+    }, [localTracks]);
 
     const pickLocalAudio = async () => {
         try {

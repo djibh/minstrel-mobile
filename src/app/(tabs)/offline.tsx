@@ -63,15 +63,17 @@ export default function OfflineScreen() {
 
       <View style={{ height: theme.spacing.xxxl }} />
 
-      <SectionHeader title="Imports et téléchargements" />
-
-      <View style={{ gap: theme.spacing.md }}>
-        {vm.downloads.map((item) => (
-          <DownloadProgressCard key={item.id} item={item} />
-        ))}
-      </View>
-
-      <View style={{ height: theme.spacing.xxxl }} />
+      {vm.downloads.length > 0 && (
+        <>
+          <SectionHeader title="Imports et téléchargements" />
+          <View style={{ gap: theme.spacing.md }}>
+            {vm.downloads.map((item) => (
+              <DownloadProgressCard key={item.id} item={item} />
+            ))}
+          </View>
+          <View style={{ height: theme.spacing.xxxl }} />
+        </>
+      )}
 
       <SectionHeader title="Déjà disponibles sur l’appareil" />
 
