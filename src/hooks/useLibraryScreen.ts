@@ -5,7 +5,7 @@ import { mapPlaylistDto } from '@/domain/mappers/playlist.mapper';
 import { mapTrackDto } from '@/domain/mappers/track.mapper';
 import { Album } from '@/domain/models/album.model';
 import { Artist } from '@/domain/models/artist.model';
-import { useLibraryStore } from '@/stores/library.store';
+import { LibrarySort, useLibraryStore } from '@/stores/library.store';
 import { useOfflineStore } from '@/stores/offline.store';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -16,40 +16,48 @@ import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { buildLocalAlbums, buildLocalArtists } from '@/hooks/useOfflineScreen';
 import { routes } from '@/utils/routes';
 
-function sortTracks(tracks: Track[], sortBy: 'alpha' | 'artist' | 'year' | 'recent') {
+function sortTracks(tracks: Track[], sortBy: LibrarySort) {
     if (sortBy === 'artist') {
         return [...tracks].sort((a, b) => a.artistName.localeCompare(b.artistName));
     }
-
-    if (sortBy === 'recent') {
-        return [...tracks].reverse();
+    if (sortBy === 'alpha-desc') {
+        return [...tracks].sort((a, b) => b.title.localeCompare(a.title));
     }
-
-    return [...tracks].sort((a, b) => a.title.localeCompare(b.title));
+    if (sortBy === 'alpha') {
+        return [...tracks].sort((a, b) => a.title.localeCompare(b.title));
+    }
+    return tracks;
 }
 
-function sortAlbums(albums: Album[], sortBy: 'alpha' | 'artist' | 'year' | 'recent') {
+function sortAlbums(albums: Album[], sortBy: LibrarySort) {
     if (sortBy === 'artist') {
         return [...albums].sort((a, b) => a.artistName.localeCompare(b.artistName));
     }
-
     if (sortBy === 'year') {
         return [...albums].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
     }
-
-    if (sortBy === 'recent') {
-        return [...albums].reverse();
+    if (sortBy === 'alpha-desc') {
+        return [...albums].sort((a, b) => b.title.localeCompare(a.title));
     }
-
-    return [...albums].sort((a, b) => a.title.localeCompare(b.title));
+    if (sortBy === 'alpha') {
+        return [...albums].sort((a, b) => a.title.localeCompare(b.title));
+    }
+    return albums;
 }
 
-function sortArtists(artists: Artist[], sortBy: 'alpha' | 'artist' | 'year' | 'recent') {
-    if (sortBy === 'recent') {
-        return [...artists].reverse();
+function sortArtists(artists: Artist[], sortBy: LibrarySort) {
+    if (sortBy === 'alpha-desc') {
+        return [...artists].sort((a, b) => b.name.localeCompare(a.name));
     }
+    if (sortBy === 'alpha') {
+        return [...artists].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return artists;
+}
 
-    return [...artists].sort((a, b) => a.name.localeCompare(b.name));
+function toApiSort(sortBy: LibrarySort): string {
+    if (sortBy === 'alpha-desc') return 'alpha';
+    return sortBy;
 }
 
 function mergeLibraryItems<T extends LibraryItem>(
@@ -98,7 +106,7 @@ export function useLibraryScreen() {
             try {
                 if (contentTab === 'albums') {
                     try {
-                        const result = await libraryApi.getAlbums(sourceFilter, sortBy);
+                        const result = await libraryApi.getAlbums(sourceFilter, toApiSort(sortBy));
                         const mapped = result.map(mapAlbumDto);
                         const merged = mergeLibraryItems(mapped, localAlbums, sourceFilter);
                         setItems(sortAlbums(merged, sortBy));
@@ -112,7 +120,7 @@ export function useLibraryScreen() {
 
                 if (contentTab === 'artists') {
                     try {
-                        const result = await libraryApi.getArtists(sourceFilter, sortBy);
+                        const result = await libraryApi.getArtists(sourceFilter, toApiSort(sortBy));
                         const mapped = result.map(mapArtistDto);
                         const merged = mergeLibraryItems(mapped, localArtists, sourceFilter);
                         setItems(sortArtists(merged, sortBy));
@@ -126,7 +134,7 @@ export function useLibraryScreen() {
 
                 if (contentTab === 'tracks') {
                     try {
-                        const result = await libraryApi.getTracks(sourceFilter, sortBy);
+                        const result = await libraryApi.getTracks(sourceFilter, toApiSort(sortBy));
                         const mapped = result.map(mapTrackDto);
                         const merged = mergeLibraryItems(mapped, localTracks, sourceFilter);
                         setItems(sortTracks(merged, sortBy));
@@ -139,7 +147,7 @@ export function useLibraryScreen() {
                 }
 
                 try {
-                    const result = await libraryApi.getPlaylists(sourceFilter, sortBy);
+                    const result = await libraryApi.getPlaylists(sourceFilter, toApiSort(sortBy));
                     const mapped = result.map(mapPlaylistDto);
                     setItems(
                         sourceFilter === 'local' || sourceFilter === 'downloaded' ? [] : mapped

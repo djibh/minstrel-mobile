@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 export type LibraryContentTab = 'albums' | 'artists' | 'tracks' | 'playlists';
 export type SourceFilter = 'all' | 'local' | 'pcloud' | 'downloaded';
-export type LibrarySort = 'alpha' | 'artist' | 'year' | 'recent';
+export type LibrarySort = 'recent' | 'alpha' | 'alpha-desc' | 'artist' | 'year';
 
 type LibraryStore = {
     contentTab: LibraryContentTab;
@@ -16,7 +16,7 @@ type LibraryStore = {
 export const useLibraryStore = create<LibraryStore>((set) => ({
     contentTab: 'albums',
     sourceFilter: 'all',
-    sortBy: 'alpha',
+    sortBy: 'recent',
     setContentTab: (contentTab) => set({ contentTab }),
     setSourceFilter: (sourceFilter) => set({ sourceFilter }),
     setSortBy: (sortBy) => set({ sortBy }),
