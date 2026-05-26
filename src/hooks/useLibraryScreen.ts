@@ -7,7 +7,6 @@ import { Album } from '@/domain/models/album.model';
 import { Artist } from '@/domain/models/artist.model';
 import { useLibraryStore } from '@/stores/library.store';
 import { useOfflineStore } from '@/stores/offline.store';
-import { usePlaybackStore } from '@/stores/playback.store';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -71,7 +70,6 @@ function mergeLibraryItems<T extends LibraryItem>(
 
 export function useLibraryScreen() {
     const router = useRouter();
-    const playbackStore = usePlaybackStore();
     const localTracks = useOfflineStore((state) => state.localTracks);
     const { playTrack: playTrackAction } = usePlaybackActions();
 
@@ -167,9 +165,7 @@ export function useLibraryScreen() {
         setSourceFilter,
         setSortBy,
         openAlbum: (id: string) => router.push(routes.album(id)),
-        openArtist: (id: string) => {
-            console.log('open artist', id);
-        },
+        openArtist: (id: string) => router.push(routes.artist(id) as any),
         openPlaylist: (id: string) => router.push(routes.playlist(id)),
         playTrack: async (track: Track) => {
             const trackQueue = contentTab === 'tracks' ? (items as Track[]) : [];

@@ -82,7 +82,7 @@ export function useSearchScreen() {
         hasResults,
         playTrack,
         openAlbum: (id: string) => router.push(routes.album(id)),
-        openArtist: (id: string) => console.log('open artist', id),
+        openArtist: (id: string) => router.push(routes.artist(id) as any),
         openPlaylist: (id: string) => router.push(routes.playlist(id)),
     };
 }
