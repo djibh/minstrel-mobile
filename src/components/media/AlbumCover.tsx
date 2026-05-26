@@ -38,7 +38,7 @@ export function AlbumCover({
     );
   }
 
-  const iconSize = resolvedSize ? Math.round(resolvedSize * 0.4) : 22;
+  const iconSize = resolvedSize ? Math.round(resolvedSize * 0.75) : 42;
 
   return (
     <View style={containerStyle}>
