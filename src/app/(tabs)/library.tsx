@@ -52,7 +52,15 @@ export default function LibraryScreen() {
       <View
         style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.lg }}
       >
-        <SortButton value={vm.sortBy} onChange={vm.setSortBy} />
+        <SortButton
+          value={vm.sortBy}
+          onChange={vm.setSortBy}
+          cycle={
+            vm.contentTab === "albums"
+              ? ["recent", "alpha", "alpha-desc", "year"]
+              : ["recent", "alpha", "alpha-desc"]
+          }
+        />
       </View>
 
       <View style={{ flex: 1 }}>

@@ -1,33 +1,32 @@
 import { LibrarySort } from "@/stores/library.store";
 import { theme } from "@/theme";
-import { ArrowDownZA, ArrowUpAZ, Clock } from "lucide-react-native";
+import { ArrowDownZA, ArrowUpAZ, Calendar, Clock } from "lucide-react-native";
 import { Pressable } from "react-native";
 
-type SortCycleMode = "recent" | "alpha" | "alpha-desc";
+const DEFAULT_CYCLE: LibrarySort[] = ["recent", "alpha", "alpha-desc"];
 
-const CYCLE: SortCycleMode[] = ["recent", "alpha", "alpha-desc"];
+const ICON_MAP: Record<string, React.ComponentType<{ size: number; color: string }>> = {
+  recent: Clock,
+  alpha: ArrowUpAZ,
+  "alpha-desc": ArrowDownZA,
+  year: Calendar,
+};
 
 type Props = {
   value: LibrarySort;
-  onChange: (next: SortCycleMode) => void;
+  onChange: (next: LibrarySort) => void;
+  cycle?: LibrarySort[];
 };
 
-export function SortButton({ value, onChange }: Props) {
-  const current = CYCLE.includes(value as SortCycleMode)
-    ? (value as SortCycleMode)
-    : "recent";
+export function SortButton({ value, onChange, cycle = DEFAULT_CYCLE }: Props) {
+  const current = cycle.includes(value) ? value : cycle[0];
 
   const handlePress = () => {
-    const nextIndex = (CYCLE.indexOf(current) + 1) % CYCLE.length;
-    onChange(CYCLE[nextIndex]);
+    const nextIndex = (cycle.indexOf(current) + 1) % cycle.length;
+    onChange(cycle[nextIndex]);
   };
 
-  const Icon =
-    current === "alpha"
-      ? ArrowUpAZ
-      : current === "alpha-desc"
-        ? ArrowDownZA
-        : Clock;
+  const Icon = ICON_MAP[current] ?? Clock;
 
   const isActive = current !== "recent";
 
