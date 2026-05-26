@@ -15,11 +15,13 @@ import { Artist } from "@/domain/models/artist.model";
 import { Playlist } from "@/domain/models/playlist.model";
 import { Track } from "@/domain/models/track.model";
 import { useLibraryScreen } from "@/hooks/useLibraryScreen";
+import { useFavorites } from "@/hooks/useFavorites";
 import { theme } from "@/theme";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 export default function LibraryScreen() {
   const vm = useLibraryScreen();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   return (
     <AppScreen>
@@ -103,6 +105,8 @@ export default function LibraryScreen() {
               <TrackRow
                 track={item as Track}
                 onPress={() => vm.playTrack(item as Track)}
+                isFavorite={isFavorite(item.id)}
+                onToggleFavorite={(track) => toggleFavorite(track)}
               />
             )}
             ItemSeparatorComponent={() => (

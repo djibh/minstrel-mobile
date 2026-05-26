@@ -5,11 +5,13 @@ import { AppScreen } from "@/components/layout/AppScreen";
 import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { TrackRow } from "@/components/media/TrackRow";
 import { useAlbumDetailsScreen } from "@/hooks/useAlbumDetailsScreen";
+import { useFavorites } from "@/hooks/useFavorites";
 import { theme } from "@/theme";
 import { ActivityIndicator, Text, View } from "react-native";
 
 export default function AlbumDetailsScreen() {
   const vm = useAlbumDetailsScreen();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   if (vm.isLoading) {
     return (
@@ -104,7 +106,12 @@ export default function AlbumDetailsScreen() {
         ) : (
           vm.tracks.map((track, index) => (
             <View key={track.id}>
-              <TrackRow track={track} onPress={() => vm.playTrack(track)} />
+              <TrackRow
+                track={track}
+                onPress={() => vm.playTrack(track)}
+                isFavorite={isFavorite(track.id)}
+                onToggleFavorite={toggleFavorite}
+              />
               {index < vm.tracks.length - 1 ? (
                 <View
                   style={{
