@@ -65,6 +65,10 @@ src/
       offline.tsx
     album/
       [id].tsx
+    artist/
+      [id].tsx
+    playlist/
+      [id].tsx
     now-playing.tsx
 
   api/
@@ -92,10 +96,16 @@ src/
     useLibraryScreen.ts
     useNowPlayingScreen.ts
 
+  services/
+    player/
+      player.service.ts
+
   stores/
     library.store.ts
     playback.store.ts
     offline.store.ts
+    search.store.ts
+    favorites.store.ts
 
   theme/
     colors.ts
@@ -156,23 +166,38 @@ Remplacer l’IP par celle de la machine qui exécute le backend Minstrel.
 npx expo start
 ```
 
-Important: les commandes doivent etre lancees depuis [`src/`](/Users/djibh/Documents/Workspace/minstrel-mobile/minstrel-mobile/src), qui contient le `package.json`.
+Important : les commandes doivent être lancées depuis [`src/`](src/), qui contient le `package.json`.
 
 ## Validation Player
 
-Une checklist de test sur appareil natif est disponible ici:
+Une checklist de test sur appareil natif est disponible ici :
 
-- [`docs/player-device-test-checklist.md`](/Users/djibh/Documents/Workspace/minstrel-mobile/minstrel-mobile/docs/player-device-test-checklist.md)
+- [`docs/player-device-test-checklist.md`](docs/player-device-test-checklist.md)
 
 ## État actuel
 
-À ce stade, le projet permet déjà :
+Le projet dispose d’un player fonctionnel et d’une bibliothèque navigable :
 
-- d’afficher l’écran **Bibliothèque**
-- de charger des données mock via le backend
-- de naviguer entre les tabs principales
-- de sélectionner l’onglet **Morceaux**
-- d’ouvrir un mini-player global après sélection d’un morceau
+**Lecture**
+- Lecture / pause, seek, répétition, lecture aléatoire (shuffle)
+- File d’attente
+- Lecture en arrière-plan
+- Mini-player global persistent
+- Écran Now Playing
+
+**Bibliothèque**
+- Navigation par Albums, Artistes, Playlists, Morceaux
+- Écrans dédiés album `album/[id]`, artiste `artist/[id]`, playlist `playlist/[id]`
+- Tri et filtrage par source
+- Favoris (ajout / suppression)
+
+**Offline**
+- Scan de la bibliothèque locale (stockage appareil)
+- Téléchargements avec suivi de progression
+- Extraction des métadonnées audio (via `music-metadata-browser`)
+
+**Recherche**
+- Recherche via l’API backend
 
 ## Routing
 
@@ -210,11 +235,27 @@ Gère :
 
 ### `offline.store.ts`
 
-Prévu pour :
+Gère :
 
-- le cache
-- les téléchargements
+- les téléchargements et leur progression
+- la bibliothèque locale (fichiers sur l'appareil)
+- la synchronisation pCloud
 - les contenus disponibles hors ligne
+
+### `search.store.ts`
+
+Gère :
+
+- la requête de recherche
+- les résultats (morceaux, albums, artistes)
+- l'état de chargement
+
+### `favorites.store.ts`
+
+Gère :
+
+- la liste des morceaux / albums favoris
+- l'ajout et la suppression de favoris
 
 ## Conventions du projet
 
@@ -227,22 +268,33 @@ Prévu pour :
 
 ## Roadmap MVP
 
+### Fait
+
+- Bibliothèque (albums, artistes, playlists, morceaux)
+- Navigation par onglets
+- Mini-player global
+- Écran Now Playing
+- Player audio (lecture, pause, seek, repeat, shuffle)
+- File d'attente
+- Recherche
+- Favoris
+- Tri dans la bibliothèque
+- Offline : scan local, téléchargements
+- Écrans dédiés album / artiste / playlist
+
 ### En cours
 
-- Bibliothèque
-- intégration backend mock
-- mini-player
+- Workflow d'import (multi-source, confirmation)
+- Covers : extraction et cache depuis les fichiers locaux
 
 ### À venir
 
-- Albums
-- Artistes
-- Playlists
-- vrai écran Now Playing
-- Recherche
-- Offline
-- intégration du player audio réel
-- connexion à une vraie source backend
+- Recherche dans la bibliothèque offline (indexation locale)
+- Playlists custom (création / édition)
+- Intégration sources externes (pCloud, etc.)
+- Gestion des erreurs (fichiers corrompus, source indisponible)
+- Polish Now Playing : transitions, gestes swipe-to-dismiss
+- Paramètres audio (equalizer si supporté par expo-audio)
 
 ## Notes
 
