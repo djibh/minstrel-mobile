@@ -24,7 +24,6 @@
     "expo-symbols": "~55.0.5",
     "expo-web-browser": "~55.0.10",
     "lucide-react-native": "^1.7.0",
-    "music-metadata-browser": "^2.5.11",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.2",

@@ -6,12 +6,14 @@ type Props = {
   size?: number | string;
   radius?: number;
   coverUrl?: string | null;
+  iconSize?: number;
 };
 
 export function AlbumCover({
   size = 56,
   radius = theme.radius.md,
   coverUrl,
+  iconSize: iconSizeProp,
 }: Props) {
   const resolvedSize = typeof size === "number" ? size : undefined;
 
@@ -38,7 +40,9 @@ export function AlbumCover({
     );
   }
 
-  const iconSize = resolvedSize ? Math.round(resolvedSize * 0.75) : 42;
+  const iconSize = iconSizeProp ?? (resolvedSize ? Math.round(resolvedSize * 0.4) : 22);
+
+  //const iconSize = resolvedSize ? Math.round(resolvedSize * 0.75) : 42;
 
   return (
     <View style={containerStyle}>

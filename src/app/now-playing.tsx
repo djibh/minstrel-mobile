@@ -32,6 +32,7 @@ export default function NowPlayingScreen() {
           size="100%"
           radius={theme.radius.xl}
           coverUrl={vm.currentTrack.coverUrl}
+          iconSize={66}
         />
       </View>
 
