@@ -10,6 +10,8 @@ import { OfflineContentList } from "@/components/offline/OfflineContentList";
 import { PCloudConfigModal } from "@/components/offline/PCloudConfigModal";
 import { PcloudConnectionCard } from "@/components/offline/PcloudConnectionCard";
 import { StorageStatusCard } from "@/components/offline/StorageStatusCard";
+import { WebDavConfigModal } from "@/components/offline/WebDavConfigModal";
+import { WebDavConnectionCard } from "@/components/offline/WebDavConnectionCard";
 import { useOfflineScreen } from "@/hooks/useOfflineScreen";
 import { theme } from "@/theme";
 import { View } from "react-native";
@@ -21,7 +23,7 @@ export default function OfflineScreen() {
     <AppScreen scrollable>
       <ScreenHeader
         title="Sources"
-        subtitle="Local, imports, pCloud et contenus téléchargés"
+        subtitle="Local, imports, cloud et contenus téléchargés"
       />
 
       <PCloudConfigModal
@@ -29,6 +31,14 @@ export default function OfflineScreen() {
         onClose={() => vm.setPcloudConfigVisible(false)}
         onSave={(email, password, folderPath, apiBaseUrl, verificationCode) =>
           vm.handlePCloudSave(email, password, folderPath, apiBaseUrl, verificationCode)
+        }
+      />
+
+      <WebDavConfigModal
+        visible={vm.webdavConfigVisible}
+        onClose={() => vm.setWebdavConfigVisible(false)}
+        onSave={(serverUrl, username, password, folderPath) =>
+          vm.handleWebDavSave(serverUrl, username, password, folderPath)
         }
       />
 
@@ -52,6 +62,16 @@ export default function OfflineScreen() {
         connection={vm.pcloudConnection}
         onConnect={vm.connectPcloud}
         onManage={vm.managePcloud}
+      />
+
+      <View style={{ height: theme.spacing.xxxl }} />
+
+      <SectionHeader title="WebDAV" actionLabel="Configurer" />
+
+      <WebDavConnectionCard
+        connection={vm.webdavConnection}
+        onConnect={vm.connectWebDav}
+        onManage={vm.manageWebDav}
       />
 
       <View style={{ height: theme.spacing.xxxl }} />

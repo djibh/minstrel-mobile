@@ -34,9 +34,14 @@ export type PcloudConnection = {
     syncedTrackCount: number;
 };
 
+export type WebdavConnection = {
+    status: 'disconnected' | 'connected';
+    serverLabel?: string;
+};
+
 export type ImportSourceItem = {
     id: string;
-    kind: 'device' | 'folder' | 'pcloud';
+    kind: 'device' | 'folder' | 'pcloud' | 'webdav';
     label: string;
     description: string;
     status: 'available' | 'connected' | 'attention';
@@ -59,6 +64,7 @@ type OfflineStore = {
     cacheMaxBytes: number;
     localLibrarySummary: LocalLibrarySummary;
     pcloudConnection: PcloudConnection;
+    webdavConnection: WebdavConnection;
     importSources: ImportSourceItem[];
     downloads: DownloadItem[];
     offlineItems: OfflineMediaItem[];
@@ -69,6 +75,7 @@ type OfflineStore = {
     setCacheMaxBytes: (value: number) => void;
     setLocalLibrarySummary: (value: LocalLibrarySummary) => void;
     setPcloudConnection: (value: PcloudConnection) => void;
+    setWebdavConnection: (value: WebdavConnection) => void;
     setImportSources: (items: ImportSourceItem[]) => void;
     setDownloads: (downloads: DownloadItem[]) => void;
     setOfflineItems: (items: OfflineMediaItem[]) => void;
@@ -92,6 +99,9 @@ export const useOfflineStore = create<OfflineStore>()(
         status: "disconnected",
         libraryMode: "import",
         syncedTrackCount: 0,
+    },
+    webdavConnection: {
+        status: "disconnected",
     },
     importSources: [
         {
@@ -130,6 +140,7 @@ export const useOfflineStore = create<OfflineStore>()(
     setCacheMaxBytes: (cacheMaxBytes) => set({ cacheMaxBytes }),
     setLocalLibrarySummary: (localLibrarySummary) => set({ localLibrarySummary }),
     setPcloudConnection: (pcloudConnection) => set({ pcloudConnection }),
+    setWebdavConnection: (webdavConnection) => set({ webdavConnection }),
     setImportSources: (importSources) => set({ importSources }),
     setDownloads: (downloads) => set({ downloads }),
     setOfflineItems: (offlineItems) => set({ offlineItems }),

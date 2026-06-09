@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { routes } from '@/utils/routes';
 import { useEffect, useState } from 'react';
 import { readAudioMetadata } from '@/utils/audioMetadata';
-import { updatePCloudConfig } from '@/api/sourcesApi';
+import { updatePCloudConfig, updateWebDavConfig } from '@/api/sourcesApi';
 
 function copyToAudioDir(sourceUri: string, filename: string): string {
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -139,11 +139,13 @@ export function useOfflineScreen() {
     const router = useRouter();
     const { playTrack } = usePlaybackActions();
     const [pcloudConfigVisible, setPcloudConfigVisible] = useState(false);
+    const [webdavConfigVisible, setWebdavConfigVisible] = useState(false);
     const {
         cacheUsedBytes,
         cacheMaxBytes,
         localLibrarySummary,
         pcloudConnection,
+        webdavConnection,
         importSources,
         downloads,
         offlineItems,
@@ -156,6 +158,7 @@ export function useOfflineScreen() {
         setLocalTracks,
         setPendingImportAssets,
         setPcloudConnection,
+        setWebdavConnection,
     } = useOfflineStore();
 
     useEffect(() => {
@@ -320,6 +323,22 @@ export function useOfflineScreen() {
     const connectPcloud = () => setPcloudConfigVisible(true);
     const managePcloud = () => setPcloudConfigVisible(true);
 
+    const applyWebDavStatus = (connected: boolean, serverUrl?: string) => {
+        setWebdavConnection({
+            status: connected ? 'connected' : 'disconnected',
+            serverLabel: connected ? serverUrl : undefined,
+        });
+    };
+
+    const handleWebDavSave = async (serverUrl: string, username: string, password: string, folderPath: string) => {
+        const result = await updateWebDavConfig({ serverUrl, username, password, musicFolderPath: folderPath });
+        if (!result.connected && result.error) throw new Error(result.error);
+        applyWebDavStatus(result.connected, serverUrl);
+    };
+
+    const connectWebDav = () => setWebdavConfigVisible(true);
+    const manageWebDav = () => setWebdavConfigVisible(true);
+
     const cancelImport = () => {
         setPendingImportAssets([]);
     };
@@ -346,6 +365,7 @@ export function useOfflineScreen() {
         cacheMaxBytes,
         localLibrarySummary,
         pcloudConnection,
+        webdavConnection,
         importSources,
         downloads,
         offlineItems,
@@ -353,7 +373,10 @@ export function useOfflineScreen() {
         pendingImportAssets,
         pcloudConfigVisible,
         setPcloudConfigVisible,
+        webdavConfigVisible,
+        setWebdavConfigVisible,
         handlePCloudSave,
+        handleWebDavSave,
         pickLocalAudio,
         confirmImport,
         cancelImport,
@@ -361,5 +384,7 @@ export function useOfflineScreen() {
         playOfflineItem,
         connectPcloud,
         managePcloud,
+        connectWebDav,
+        manageWebDav,
     };
 }

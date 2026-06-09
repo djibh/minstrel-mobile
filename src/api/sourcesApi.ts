@@ -34,3 +34,38 @@ export type PCloudConfigResult = {
 export async function updatePCloudConfig(payload: PCloudConfigPayload): Promise<PCloudConfigResult> {
     return apiPut<PCloudConfigResult>('/sources/pcloud/config', payload);
 }
+
+export type WebDavStatus = {
+    connected: boolean;
+};
+
+export type WebDavConfig = {
+    isConfigured: boolean;
+    serverUrl: string;
+    username: string;
+    musicFolderPath: string;
+};
+
+export async function getWebDavStatus(): Promise<WebDavStatus> {
+    return apiGet<WebDavStatus>('/sources/webdav/status');
+}
+
+export async function getWebDavConfig(): Promise<WebDavConfig> {
+    return apiGet<WebDavConfig>('/sources/webdav/config');
+}
+
+export type WebDavConfigPayload = {
+    serverUrl: string;
+    username: string;
+    password: string;
+    musicFolderPath: string;
+};
+
+export type WebDavConfigResult = {
+    connected: boolean;
+    error?: string;
+};
+
+export async function updateWebDavConfig(payload: WebDavConfigPayload): Promise<WebDavConfigResult> {
+    return apiPut<WebDavConfigResult>('/sources/webdav/config', payload);
+}

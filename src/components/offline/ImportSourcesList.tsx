@@ -1,6 +1,6 @@
 import { ImportSourceItem } from "@/stores/offline.store";
 import { theme } from "@/theme";
-import { Cloud, FolderInput, Smartphone } from "lucide-react-native";
+import { Cloud, FolderInput, Server, Smartphone } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 type Props = {
@@ -12,6 +12,7 @@ const icons = {
   device: Smartphone,
   folder: FolderInput,
   pcloud: Cloud,
+  webdav: Server,
 };
 
 export function ImportSourcesList({ items, onPressItem }: Props) {
