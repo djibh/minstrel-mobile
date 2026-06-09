@@ -7,6 +7,7 @@ import { ImportConfirmSheet } from "@/components/offline/ImportConfirmSheet";
 import { ImportSourcesList } from "@/components/offline/ImportSourcesList";
 import { LocalLibraryCard } from "@/components/offline/LocalLibraryCard";
 import { OfflineContentList } from "@/components/offline/OfflineContentList";
+import { PCloudConfigModal } from "@/components/offline/PCloudConfigModal";
 import { PcloudConnectionCard } from "@/components/offline/PcloudConnectionCard";
 import { StorageStatusCard } from "@/components/offline/StorageStatusCard";
 import { useOfflineScreen } from "@/hooks/useOfflineScreen";
@@ -21,6 +22,14 @@ export default function OfflineScreen() {
       <ScreenHeader
         title="Sources"
         subtitle="Local, imports, pCloud et contenus téléchargés"
+      />
+
+      <PCloudConfigModal
+        visible={vm.pcloudConfigVisible}
+        onClose={() => vm.setPcloudConfigVisible(false)}
+        onSave={(email, password, folderPath, apiBaseUrl, verificationCode) =>
+          vm.handlePCloudSave(email, password, folderPath, apiBaseUrl, verificationCode)
+        }
       />
 
       <ImportConfirmSheet

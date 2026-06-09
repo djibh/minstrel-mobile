@@ -7,8 +7,9 @@ import { usePlaybackActions } from '@/hooks/usePlaybackActions';
 import { PendingImportAsset, useOfflineStore } from '@/stores/offline.store';
 import { useRouter } from 'expo-router';
 import { routes } from '@/utils/routes';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { readAudioMetadata } from '@/utils/audioMetadata';
+import { updatePCloudConfig } from '@/api/sourcesApi';
 
 function copyToAudioDir(sourceUri: string, filename: string): string {
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -137,6 +138,7 @@ export function buildLocalArtists(tracks: Track[]) {
 export function useOfflineScreen() {
     const router = useRouter();
     const { playTrack } = usePlaybackActions();
+    const [pcloudConfigVisible, setPcloudConfigVisible] = useState(false);
     const {
         cacheUsedBytes,
         cacheMaxBytes,
@@ -153,6 +155,7 @@ export function useOfflineScreen() {
         setOfflineItems,
         setLocalTracks,
         setPendingImportAssets,
+        setPcloudConnection,
     } = useOfflineStore();
 
     useEffect(() => {
@@ -291,13 +294,31 @@ export function useOfflineScreen() {
         );
     };
 
-    const connectPcloud = () => {
-        // pCloud auth flow — à implémenter
+    const applyPCloudStatus = (connected: boolean) => {
+        setPcloudConnection({
+            status: connected ? 'connected' : 'disconnected',
+            accountLabel: connected ? 'Dossier public configuré' : undefined,
+            libraryMode: 'import',
+            syncedTrackCount: 0,
+        });
+        setImportSources(
+            useOfflineStore.getState().importSources.map((s) =>
+                s.kind === 'pcloud'
+                    ? { ...s, status: connected ? 'connected' : 'available', detail: connected ? 'Configuré' : 'Non configuré' }
+                    : s
+            )
+        );
     };
 
-    const managePcloud = () => {
-        // gestion du compte pCloud connecté — à implémenter
+    const handlePCloudSave = async (email: string, password: string, folderPath: string, apiBaseUrl: string, verificationCode?: string) => {
+        const result = await updatePCloudConfig({ email, password, musicFolderPath: folderPath, apiBaseUrl, verificationCode });
+        if (!result.connected && result.error) throw new Error(result.error);
+        if (!result.requiresVerification) applyPCloudStatus(result.connected);
+        return result;
     };
+
+    const connectPcloud = () => setPcloudConfigVisible(true);
+    const managePcloud = () => setPcloudConfigVisible(true);
 
     const cancelImport = () => {
         setPendingImportAssets([]);
@@ -330,6 +351,9 @@ export function useOfflineScreen() {
         offlineItems,
         localTracks,
         pendingImportAssets,
+        pcloudConfigVisible,
+        setPcloudConfigVisible,
+        handlePCloudSave,
         pickLocalAudio,
         confirmImport,
         cancelImport,
